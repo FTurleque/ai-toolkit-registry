@@ -9,6 +9,16 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Modifié — skill `audit-application` 1.1.0
+
+Report dans le registre de la version utilisée sur claude.ai, qui avait divergé.
+
+- **Filtre Statut** dans le tableau de bord : par défaut « Tous (non fermés) » ; les constats fermés
+  n'apparaissent que sélectionnés (« Fermés (tous) » ou un statut fermé précis).
+- **Mise à jour d'un audit existant** : partir de la branche distante à jour, relire dans le code chaque
+  constat déclaré fermé, implémenté ou partiel, porter `statut`, `changement` et `verification` dans
+  `findings.json`, recalculer les notes sur les constats non fermés et republier l'artefact au même lien.
+
 ### Ajouté — skills `publish-git-submodule`, `install-git-submodule` et `git-submodule-common` 1.0.0 (expérimentaux)
 
 Deux skills pour partager un dépôt entier ou un seul dossier (`.claude`, `docs`, une bibliothèque) entre
