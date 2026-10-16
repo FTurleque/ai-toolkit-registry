@@ -3,7 +3,7 @@ kind: skill
 name: audit-application
 displayName: Audit d'application
 description: "Audit de code complet d'une application (architecture, qualité, sécurité, tests, performance, dépendances, CI/CD) produisant un rapport versionné dans le dépôt, un découpage en sprints ordonnés par dépendance, et un artefact de synthèse. Utiliser pour « audit de code », « audite cette app », « revue technique complète », « état de santé du code »."
-version: 1.0.0
+version: 1.1.0
 status: experimental
 category: development
 tags:
@@ -153,7 +153,8 @@ Tableau de bord HTML autonome, publié comme artefact, alimenté par `findings.j
 2. **diagramme d'architecture** — la vision globale de l'application, avant tout chiffre sur les constats ; un lecteur qui ne connaît pas le dépôt doit pouvoir situer ce dont parlent les constats ;
 3. **répartition des constats** par sévérité et par axe ;
 4. **feuille de route des sprints** : une carte par sprint avec son numéro, son titre, son nombre de constats, sa charge, un ruban de composition par sévérité, son critère de sortie et ses identifiants de constats ; cliquer un sprint filtre la table ;
-5. **tableau filtrable (sprint, axe, sévérité, effort) avec détail au clic**, trié par défaut dans l'ordre de correction et groupé par sprint, le détail d'un constat montrant sa preuve, son impact, son action, son sprint et ses dépendances dans les deux sens ;
+5. **tableau filtrable (sprint, axe, sévérité, effort, statut) avec détail au clic**, trié par défaut dans l'ordre de correction et groupé par sprint, le détail d'un constat montrant sa preuve, son impact, son action, son sprint et ses dépendances dans les deux sens ;
+   le filtre **Statut** obéit à une règle fixe : sa valeur par défaut, libellée « Tous (non fermés) », affiche **tout ce qui n'est pas fermé** (spécifié, partiel, ouvert, dette figée, décision, Info) ; les constats fermés n'apparaissent que si on les sélectionne, soit par l'option « Fermés (tous) », soit par un statut fermé précis (« Fermé », « Fermé avec réserve »…). Un constat est fermé quand son statut commence par « Fermé ». Le compteur de lignes affichées suit le filtre ;
 6. **thèmes transverses**, puis date, périmètre et angles morts en pied de page.
 
 Charger `artifact-design` avant d'écrire la page, `dataviz` avant le moindre graphique, et `artifact-diagramming` avant le diagramme d'architecture.
@@ -191,3 +192,12 @@ Les couleurs de statut (bon / avertissement / sérieux / critique) servent aux *
 - Faire relire la consolidation **et le découpage en sprints** par un agent qui n'a pas produit les constats, avant d'écrire les livrables. Lui demander explicitement de contester des sévérités et de chercher les faux positifs : une relecture où rien ne bouge est une relecture manquée.
 - Les titres de constats sont ce qui s'affiche partout. Vérifier qu'ils sont correctement accentués et que leurs chiffres correspondent à la preuve : un sous-agent produit souvent du texte sans accents, et une correction de chiffre faite dans la preuve s'oublie dans le titre.
 - Quand une note communique faux — un axe très dégradé par une densité de constats structurels alors que rien n'a pu être mesuré, ou une dette arbitrée et documentée que le barème traite comme une dette ignorée — le dire **avant** de citer la note, dans le même paragraphe.
+
+## Mise à jour d'un audit existant
+
+Quand l'utilisateur demande de vérifier le travail fait depuis l'audit :
+- Partir de la branche de développement distante à jour (`git fetch` puis archive de `origin/<branche>`), pas de l'arbre de travail local.
+- Confronter le suivi tenu par le mainteneur au code : chaque constat déclaré fermé, implémenté ou partiel est relu dans le code (preuve d'origine encore présente ? correction réelle et complète ? test actif ?) ; les désaccords sont écrits, pas lissés.
+- Porter dans `findings.json` les champs `statut`, `changement` et `verification` (verdict, preuve, réserve) ; recalculer les notes par axe sur les constats non fermés, en gardant l'historique des dates précédentes.
+- Mettre à jour le document d'état, le tableau de bord (statut dans la table et le détail, filtre Statut selon la règle ci-dessus) et republier l'artefact au même lien.
+- Avant d'écrire dans le dépôt de l'utilisateur, vérifier qu'aucune copie locale non commitée d'une mise à jour précédente ne masque la version distante ; le signaler et rappeler de commiter.

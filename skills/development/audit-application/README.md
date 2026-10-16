@@ -11,7 +11,8 @@ Sans le skill, « audite cette app » produit une liste de remarques sans ordre 
 - une note par axe dont le calcul est documenté, et 3 à 5 thèmes transverses qui expliquent la majorité des constats ;
 - un découpage en sprints dont l'ordre est **vérifié par script** (aucun prérequis dans un sprint postérieur), avec chemin critique, charge en fourchette et critère de sortie vérifiable par sprint ;
 - un rapport sous `docs/audit/<AAAA-MM-JJ>/` et un artefact HTML autonome (notes, diagramme d'architecture, répartition, feuille de route, tableau filtrable) ;
-- aucune modification du code applicatif pendant l'audit.
+- aucune modification du code applicatif pendant l'audit ;
+- la mise à jour d'un audit existant : chaque constat déclaré fermé est relu dans le code de la branche distante, les notes sont recalculées sur les constats non fermés, et le tableau de bord filtre par statut (les constats fermés masqués par défaut).
 
 Trois profils : *complet* (défaut), *sécurité* (axes 3 et 6 en profondeur), *rapide* (axes 1 à 3 sur le cœur du dépôt).
 
