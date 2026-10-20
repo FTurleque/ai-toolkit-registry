@@ -1,0 +1,31 @@
+kind: skill
+name: generate-uml-diagrams
+displayName: Diagrammes UML en Mermaid
+description: >-
+  Génère un jeu de diagrammes UML pertinent, en Mermaid, pour un module, un sous-module ou
+  l'application (vue d'ensemble globale dans docs/diagrams/application/ ; avec le détail de chaque
+  module si l'application est demandée en détail), à partir du code réel, et l'écrit dans
+  docs/diagrams/<module>/<type>-<sujet>.md. Choisit lui-même les types utiles parmi les 14 types
+  UML (classes, séquence, états, activité, cas d'utilisation, composants, déploiement, paquetages…)
+  et scinde un diagramme trop chargé en plusieurs. À utiliser dès que l'on demande de documenter,
+  expliquer, cartographier, comprendre, reprendre ou présenter un module ou une application, d'en
+  décrire l'architecture, les flux ou le modèle, de concevoir une fonctionnalité, ou de préparer un
+  onboarding, même sans le mot « diagramme ». À utiliser aussi pour toute demande explicite de
+  diagramme, schéma, UML ou Mermaid sur du code. Pas pour un organigramme, une slide ou un dessin
+  sans rapport avec un logiciel.
+version: 1.0.0
+status: experimental
+category: architecture
+tags:
+  - uml
+  - mermaid
+  - diagrams
+  - documentation
+  - architecture
+compatibility:
+  - claude-code
+requires:
+  - python>=3.8 (facultatif, pour le contrôle de syntaxe)
+authors:
+  - Fabrice Turleque
+license: MIT

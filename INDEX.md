@@ -8,7 +8,7 @@ Catalogue de tous les artefacts du depot, par type.
 
 | Type | Nombre |
 |------|-------:|
-| Skills | 11 |
+| Skills | 12 |
 | Plugins | 1 |
 | Sous-agents | 0 |
 | Commandes | 0 |
@@ -16,7 +16,7 @@ Catalogue de tous les artefacts du depot, par type.
 | Instructions de projet | 0 |
 | Serveurs MCP | 0 |
 | Styles de sortie | 0 |
-| **Total** | **12** |
+| **Total** | **13** |
 
 ## Skills
 
@@ -28,6 +28,7 @@ Catalogue de tous les artefacts du depot, par type.
 | [`adr-policy`](skills/architecture/adr-policy) | Ressources partagées par les skills adr-audit, adr-author et adr-check : politique de pertinence des ADR, découverte du contexte d'un projet, articulation av... | 1.0.0 | experimental | Code |
 | [`audit-application`](skills/development/audit-application) | Audit de code complet d'une application (architecture, qualité, sécurité, tests, performance, dépendances, CI/CD) produisant un rapport versionné dans le dép... | 1.1.0 | experimental | Code, Desktop |
 | [`code-to-openspec`](skills/development/code-to-openspec) | Rétro-ingénierie d'une application existante à partir de son code, puis préparation de changements OpenSpec traçables (constats, exigences, scénarios, tâches... | 1.0.0 | experimental | Code, Desktop |
+| [`generate-uml-diagrams`](skills/architecture/generate-uml-diagrams) | Génère un jeu de diagrammes UML pertinent, en Mermaid, pour un module, un sous-module ou l'application (vue d'ensemble globale dans docs/diagrams/application... | 1.0.0 | experimental | Code |
 | [`generate-windows-exe`](skills/development/generate-windows-exe) | Empaquette une application en executable Windows (.exe) via Inno Setup ou jpackage, avec un driver reproductible. | 1.1.0 | stable | Code, Desktop |
 | [`git-submodule-common`](skills/development/git-submodule-common) | Module Python partagé par les skills publish-git-submodule et install-git-submodule : exécution de git sans shell, validation des chemins, branches et URL, a... | 1.0.0 | experimental | Code |
 | [`install-git-submodule`](skills/development/install-git-submodule) | Installe dans le dépôt courant un sous-module Git qui suit une branche d'un autre dépôt (le dépôt entier, ou la branche d'export d'un dossier publiée par pub... | 1.0.0 | experimental | Code |

@@ -38,6 +38,9 @@ jobs:
           python -m unittest discover -s skills/development/publish-git-submodule/tests
           python -m unittest discover -s skills/development/install-git-submodule/tests
 
+      - name: Auto-test du controle Mermaid de generate-uml-diagrams
+        run: python skills/architecture/generate-uml-diagrams/resources/check_mermaid.py --self-test
+
       - name: Tests de caracterisation du superviseur de code
         run: python plugins/code-supervisor/tests/run_tests.py
 

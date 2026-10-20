@@ -9,6 +9,29 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Ajouté — skill `generate-uml-diagrams` 1.0.0 (expérimental)
+
+Génère, à partir du code, le jeu de diagrammes UML utile pour un module, un sous-module ou une
+application entière, en Mermaid, un fichier par diagramme dans `docs/diagrams/<module>/<type>-<sujet>.md`.
+
+- **Déclenchement sans le mot « diagramme »** : documenter, expliquer, reprendre ou concevoir un module
+  suffit ; une demande explicite (« un diagramme d'états de la facture ») produit ce diagramme seul.
+- **Choix des types par les signaux du code** parmi les 14 types UML et le modèle entité-association
+  (`resources/diagram-catalog.md` : correspondance Mermaid, signaux, seuils de lisibilité, squelettes
+  validés au rendu, pièges de syntaxe) ; un diagramme trop chargé est scindé en plusieurs fichiers.
+- **Application** : vue d'ensemble globale dans `docs/diagrams/application/` (modules, déploiement,
+  acteurs, parcours transverses, jamais de classe) ; « l'application en détail » ajoute le détail
+  de chaque module, traité un par un.
+- **Traçabilité** : chaque fichier porte la question à laquelle il répond, une section « Lecture » et
+  la liste des fichiers sources lus. Noms de fichiers en anglais, contenu dans la langue de la
+  documentation du projet.
+- **`resources/check_mermaid.py`** : contrôle statique sans dépendance (nommage, structure, blocs non
+  fermés, `end` comme nœud, libellés non protégés, `subgraph` vide, directives refusées par GitHub,
+  seuils), avec `--self-test`. Il ne fait aucun rendu.
+
+Surface déclarée : `claude-code`. Essayé sur un projet Maven de test à trois modules ; le
+déclenchement automatique depuis la copie installée n'a pas encore été observé.
+
 ### Modifié — `tools/install_skill.py` ignore ce que Git ignore
 
 `install` et `check` ne livrent et ne comparent que les fichiers du skill que Git ne masque pas (suivis, ou non
