@@ -71,6 +71,7 @@ artefact déclare cette surface quand il ne suppose rien de l'environnement d'ex
 | `publish-git-submodule` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `install-git-submodule` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `git-submodule-common` | skill | ✅ | ⬜ | ❌ | ❌ |
+| `generate-uml-diagrams` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `code-supervisor` | plugin | ✅ | ✅ | ❌ | ❌ |
 
 **Légende**
