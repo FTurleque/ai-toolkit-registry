@@ -47,7 +47,9 @@ règles d'usage restent dans `docs/` ; un ADR en porte les raisons et y renvoie,
 ## Rapports du superviseur
 
 Le superviseur écrit ses rapports dans `docs/rapport-supervisor/` (jamais commité : dossier ignoré,
-y compris par son propre `.gitignore`). Rien de généré ne doit atterrir dans `.claude/`, qui ne
+y compris par son propre `.gitignore`). Ce chemin est relatif au répertoire de travail : lancer les
+commandes depuis la racine, avec des chemins complets, sans `cd` vers le dossier d'un artefact.
+Sinon les rapports atterrissent dans le dossier de l'artefact. Rien de généré ne doit atterrir dans `.claude/`, qui ne
 contient que la configuration versionnée (`CLAUDE.md`, `settings.json`, `supervisor.config.json`).
 
 ## À ne pas faire
