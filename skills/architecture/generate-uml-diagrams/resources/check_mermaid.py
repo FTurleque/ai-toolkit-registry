@@ -24,7 +24,7 @@ FLOWCHART_TYPES = ("component", "deployment", "package", "usecase", "activity", 
                    "interaction")
 TYPES = {"class": "classDiagram", "object": "classDiagram", "sequence": "sequenceDiagram",
          "state": "stateDiagram-v2", "er": "erDiagram"}
-TYPES.update({prefix: "flowchart" for prefix in FLOWCHART_TYPES})
+TYPES.update(dict.fromkeys(FLOWCHART_TYPES, "flowchart"))
 
 FILE_NAME = re.compile(r"^(?P<type>[a-z]+)-(?P<subject>[a-z0-9]+(?:-[a-z0-9]+)*)\.md$")
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})\s*(\S*)")
@@ -233,7 +233,7 @@ def flow_line_errors(line: str) -> list[str]:
     errors = []
     if re.search(r"(^|[\s>|&])end\s*[\[\(\{]|%s\s*(\|[^|]*\|\s*)?end\s*$" % FLOW_ARROW, line):
         errors.append("noeud nomme 'end' en minuscules : il ferme le bloc en cours")
-    if re.search(r"(?:--+|-\.+-|==+)[ox][A-Za-z0-9_]", line):
+    if re.search(r"(?:--+|-\.+-|==+)[ox]\w", line):
         errors.append("'---o' ou '---x' colle a un identifiant : ajouter un espace")
     errors += ["libelle avec caracteres speciaux non mis entre guillemets : %r" % label
                for label in unquoted_special_labels(line)]
