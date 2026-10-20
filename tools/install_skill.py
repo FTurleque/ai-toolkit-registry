@@ -14,6 +14,13 @@ Options :
   --dest DIR   dossier de skills cible (defaut : ~/.claude/skills, ou $CLAUDE_CONFIG_DIR/skills)
   --root DIR   racine du registre (defaut : le depot qui contient ce script)
 
+Fichiers livres : dans un depot Git, ceux que Git ne masque pas dans le dossier du skill (suivis, ou
+non suivis et non ignores, selon `git ls-files --cached --others --exclude-standard`) ; un fichier
+ignore, comme un rapport du superviseur ecrit dans `docs/rapport-supervisor/`, n'est ni copie ni
+compare. Hors Git, tout le dossier. Dans les deux cas, sans caches Python (`__pycache__`,
+`.pytest_cache`, `*.pyc`) ni manifeste d'installation. `check` compare la copie installee, telle
+qu'elle est sur le disque, a ces fichiers livres.
+
 Une installation anterieure modifiee a la main n'est jamais ecrasee sans sauvegarde : elle est
 copiee dans `<dest>/../skills-backup/<nom>-<horodatage>/` avant d'etre remplacee ou retiree.
 """
@@ -67,19 +74,56 @@ def find_skill(root: str, name: str) -> str:
     return matches[0]
 
 
-def hashes(folder: str) -> dict:
-    """{chemin relatif: sha256} des fichiers livres, hors caches et manifeste d'installation."""
-    found = {}
+def skipped(rel: str) -> bool:
+    """Vrai pour un cache Python ou le manifeste d'installation, jamais livres."""
+    parts = rel.split("/")
+    return (parts[-1] == MANIFEST or parts[-1].endswith((".pyc", ".pyo"))
+            or any(part in SKIP_DIRS for part in parts[:-1]))
+
+
+def git_listed(folder: str):
+    """Fichiers du dossier que Git ne masque pas (suivis, ou non suivis et non ignores) ; None hors Git."""
+    try:
+        proc = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "."],
+                              cwd=folder, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    except OSError:
+        return None
+    if proc.returncode != 0:
+        return None
+    listed = (os.fsdecode(raw) for raw in proc.stdout.split(b"\0") if raw)
+    return {rel for rel in listed if os.path.isfile(os.path.join(folder, rel))}
+
+
+def walked(folder: str) -> set:
+    found = set()
     for dirpath, dirnames, filenames in os.walk(folder):
-        dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
-        for name in sorted(filenames):
-            if name == MANIFEST or name.endswith((".pyc", ".pyo")):
-                continue
-            path = os.path.join(dirpath, name)
-            with open(path, "rb") as fh:
-                digest = hashlib.sha256(fh.read()).hexdigest()
-            found[os.path.relpath(path, folder).replace(os.sep, "/")] = digest
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+        found.update(os.path.relpath(os.path.join(dirpath, name), folder).replace(os.sep, "/")
+                     for name in filenames)
     return found
+
+
+def hashes(folder: str, git: bool = False) -> dict:
+    """{chemin relatif: sha256} des fichiers livres, hors caches et manifeste d'installation.
+
+    Avec `git`, se limite aux fichiers que Git ne masque pas quand le dossier est dans un depot Git.
+    """
+    listed = git_listed(folder) if git else None
+    found = {}
+    for rel in sorted(walked(folder) if listed is None else listed):
+        if skipped(rel):
+            continue
+        with open(inside(folder, rel), "rb") as fh:
+            found[rel] = hashlib.sha256(fh.read()).hexdigest()
+    return found
+
+
+def shipped(source: str, name: str) -> dict:
+    """Fichiers livres du skill source ; refuse un skill dont `SKILL.md` serait ignore par Git."""
+    files = hashes(source, git=True)
+    if SKILL_FILE not in files:
+        raise SystemExit("%s : %s absent des fichiers livres (ignore par Git ?)" % (name, SKILL_FILE))
+    return files
 
 
 def read_manifest(folder: str):
@@ -148,7 +192,7 @@ def write_manifest(root: str, source: str, target: str, name: str, files: dict) 
 def install(root: str, dest: str, name: str) -> str:
     source = find_skill(root, name)
     target = inside(dest, skill_name(name))
-    wanted = hashes(source)
+    wanted = shipped(source, name)
     note = ""
     if os.path.isdir(target):
         installed = hashes(target)
@@ -169,7 +213,7 @@ def check(root: str, dest: str, name: str):
     target = inside(dest, skill_name(name))
     if not os.path.isdir(target):
         return False, "%s : non installe dans %s" % (name, dest)
-    wanted, installed = hashes(source), hashes(target)
+    wanted, installed = shipped(source, name), hashes(target)
     if wanted == installed:
         return True, "%s : identique au depot, version %s (%s)" % (name, skill_version(source), target)
     differing = sorted(p for p in set(wanted) | set(installed) if wanted.get(p) != installed.get(p))
@@ -202,17 +246,38 @@ def exits(action) -> bool:
     return False
 
 
+def write_files(folder: str, files) -> None:
+    for rel, text in files:
+        path = os.path.join(folder, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+
+
+def self_test_git_ignored(root: str, dest: str, skill: str, expect) -> None:
+    """Dans un depot Git, un fichier ignore du skill n'est ni copie ni compare."""
+    subprocess.run(["git", "init", "-q", root], check=True, stdout=subprocess.DEVNULL)
+    write_files(skill, (("docs/rapport-supervisor/.gitignore", "*\n"),
+                        ("docs/rapport-supervisor/rapport.md", "rapport du superviseur\n")))
+    expect("check vert avec un fichier ignore par Git dans le skill", check(root, dest, "demo")[0])
+    expect("reinstallation sans changement malgre le fichier ignore", "deja a jour" in install(root, dest, "demo"))
+    remove_tree(os.path.join(dest, "demo"))
+    install(root, dest, "demo")
+    expect("fichier ignore par Git non copie", not os.path.exists(os.path.join(dest, "demo", "docs")))
+    expect("check vert apres installation avec un fichier ignore", check(root, dest, "demo")[0])
+    write_files(skill, ((".gitignore", "*\n"),))
+    expect("skill ignore par Git refuse", exits(lambda: install(root, dest, "demo")))
+    os.remove(os.path.join(skill, ".gitignore"))
+
+
 def self_test() -> int:
     """Installe, modifie, reinstalle et retire un skill factice dans un dossier temporaire."""
     base = tempfile.mkdtemp(prefix="install-skill-selftest-")
     try:
         root, dest = os.path.join(base, "registry"), os.path.join(base, "home", "skills")
         skill = os.path.join(root, "skills", "development", "demo")
-        os.makedirs(os.path.join(skill, "resources", "__pycache__"))
-        for rel, text in ((SKILL_FILE, "---\nname: demo\n---\n"), ("metadata.yaml", "version: 1.2.3\n"),
-                          ("resources/tool.py", "print('v1')\n"), ("resources/__pycache__/tool.pyc", "x")):
-            with open(os.path.join(skill, rel), "w", encoding="utf-8") as fh:
-                fh.write(text)
+        write_files(skill, ((SKILL_FILE, "---\nname: demo\n---\n"), ("metadata.yaml", "version: 1.2.3\n"),
+                            ("resources/tool.py", "print('v1')\n"), ("resources/__pycache__/tool.pyc", "x")))
         failures = []
 
         def expect(label, condition):
@@ -240,12 +305,16 @@ def self_test() -> int:
         with open(os.path.join(base, "home", "skills-backup", saved[0], SKILL_FILE), encoding="utf-8") as fh:
             expect("la sauvegarde contient la retouche", "retouche locale" in fh.read())
         expect("copie identique apres remplacement", check(root, dest, "demo")[0])
+        expect("hors Git, aucun fichier filtre", hashes(skill, git=True) == hashes(skill))
+        git_note = "" if shutil.which("git") else " (git absent : cas du fichier ignore par Git non teste)"
+        if not git_note:
+            self_test_git_ignored(root, dest, skill, expect)
         uninstall(dest, "demo")
         expect("desinstallation", not os.path.exists(os.path.join(dest, "demo")))
         if failures:
             print("ECHEC - " + ", ".join(failures))
             return 1
-        print("OK - installation, verification, sauvegarde et retrait se comportent comme attendu.")
+        print("OK - installation, verification, sauvegarde et retrait se comportent comme attendu%s." % git_note)
         return 0
     finally:
         remove_tree(base)
