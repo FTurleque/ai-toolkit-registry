@@ -331,5 +331,26 @@ class StaticChecks(PublishCase):
         self.assertNotIn("${{", step["run"])
 
 
+class SandboxIsolation(PublishCase):
+    def test_no_automatic_maintenance(self):
+        # Une maintenance détachée survivrait au test et modifierait .git/objects pendant le nettoyage.
+        trace = self.box.path("trace2")
+        os.mkdir(trace)
+        env = dict(self.box.env, GIT_TRACE2_EVENT=trace)
+        self.box.write(self.repo, "app/extra.py", "pass\n")
+        self.box.git(self.repo, "add", "-A", env=env)
+        self.box.git(self.repo, "commit", "-q", "-m", "extra", env=env)
+        self.box.git(self.repo, "push", "-q", "origin", "HEAD:refs/heads/main", env=env)
+        self.box.git(self.repo, "fetch", "-q", "origin", env=env)
+        started = []
+        for name in os.listdir(trace):
+            with open(os.path.join(trace, name), encoding="utf-8", errors="replace") as fh:
+                events = [json.loads(line) for line in fh if line.strip()]
+            started += [e["argv"] for e in events
+                        if e.get("event") == "start" and set(e["argv"][1:2]) & {"maintenance", "gc"}]
+        self.assertTrue(os.listdir(trace), "trace2 n'a rien écrit")
+        self.assertEqual(started, [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,22 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Corrigé — skill `publish-git-submodule` 1.0.1
+
+Bac à sable des tests (`tests/sandbox.py`, partagé avec les tests d'`install-git-submodule`) : le nettoyage
+ne peut plus échouer sur un objet git supprimé en même temps.
+
+- **Aucune maintenance automatique** dans les dépôts temporaires : la configuration globale du bac à sable
+  désactive `maintenance.auto`, `gc.auto` et `receive.autoGC`, et interdit le détachement. Après un commit,
+  un fetch ou un push, git lançait `git maintenance run --auto --detach`, y compris dans le `receive-pack`
+  du remote bare ; ce processus d'arrière-plan modifiait `.git/objects` pendant `shutil.rmtree`. Les réglages
+  sont dans le fichier `GIT_CONFIG_GLOBAL`, que git transmet au `receive-pack` d'un remote local, ce qu'il
+  ne fait pas pour `GIT_CONFIG_COUNT`.
+- **Suppression tolérante** : un chemin déjà disparu pendant le nettoyage est ignoré ; toute autre erreur
+  reste levée.
+- **Test de non-régression** `SandboxIsolation` : trace2 ne doit voir démarrer aucune maintenance après
+  commit, push et fetch.
+
 ### Modifié — skill `audit-application` 1.1.0
 
 Report dans le registre de la version utilisée sur claude.ai, qui avait divergé.

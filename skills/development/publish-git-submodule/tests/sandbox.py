@@ -14,18 +14,37 @@ INSTALL = os.path.join(SKILLS, "install-git-submodule", "resources", "scripts", 
 UPDATE = os.path.join(SKILLS, "install-git-submodule", "resources", "scripts", "update.py")
 COMMON = os.path.join(SKILLS, "git-submodule-common", "resources", "scripts", "submodule_common.py")
 
+# Fichier de configuration globale du bac à sable : aucune maintenance automatique. Git la lance
+# après commit, fetch ou push (y compris receive-pack sur le remote bare), détachée en arrière-plan ;
+# ce processus survivant modifie .git/objects pendant la suppression du bac à sable. Ces réglages
+# vivent dans ce fichier, pas dans GIT_CONFIG_COUNT, parce que git retire GIT_CONFIG_COUNT de
+# l'environnement du receive-pack d'un remote local. Si une maintenance passait malgré tout, elle
+# resterait au premier plan, donc attendue par la commande qui l'a lancée.
+GLOBAL_CONFIG = """[maintenance]
+    auto = false
+    autoDetach = false
+[gc]
+    auto = 0
+    autoDetach = false
+[receive]
+    autoGC = false
+"""
+
 
 class Sandbox:
     def __init__(self):
         self.base = tempfile.mkdtemp(prefix="submodule-sync-test-")
-        empty = os.path.join(self.base, "gitconfig")
+        config = os.path.join(self.base, "gitconfig")
+        with open(config, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(GLOBAL_CONFIG)
+        empty = os.path.join(self.base, "excludes")
         open(empty, "w").close()
         env = dict(os.environ)
         for key in list(env):
             if key.startswith(("GIT_", "GITHUB_", "SUBMODULE_")) or key in ("GH_TOKEN", "CI"):
                 del env[key]
         env.update(
-            GIT_CONFIG_GLOBAL=empty, GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0",
+            GIT_CONFIG_GLOBAL=config, GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0",
             GIT_AUTHOR_NAME="Test", GIT_AUTHOR_EMAIL="test@example.invalid",
             GIT_COMMITTER_NAME="Test", GIT_COMMITTER_EMAIL="test@example.invalid",
             # Les sous-modules clonés depuis un chemin local sont refusés par défaut depuis git 2.38.1.
@@ -38,10 +57,17 @@ class Sandbox:
         self.env = env
 
     def close(self):
-        def retry(func, path, _exc):
+        def retry(func, path, exc):
+            error = exc[1] if isinstance(exc, tuple) else exc
+            if isinstance(error, FileNotFoundError):
+                return
+            # Windows : les objets git sont en lecture seule, le droit d'écriture débloque la suppression.
             os.chmod(path, stat.S_IWRITE)
             func(path)
-        shutil.rmtree(self.base, onerror=retry)
+        if sys.version_info >= (3, 12):
+            shutil.rmtree(self.base, onexc=retry)
+        else:
+            shutil.rmtree(self.base, onerror=retry)
 
     def path(self, *parts):
         return os.path.join(self.base, *parts)
