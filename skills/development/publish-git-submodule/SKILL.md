@@ -11,7 +11,7 @@ description: >-
   consommateurs, sans appel à un modèle d'IA. À invoquer explicitement : /publish-git-submodule
   source=.claude branch=main export=submodule/claude auto=true. Le skill voisin
   install-git-submodule fait l'autre moitié, côté dépôt destinataire.
-version: 1.0.0
+version: 1.0.1
 status: experimental
 category: development
 tags:

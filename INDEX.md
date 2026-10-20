@@ -33,7 +33,7 @@ Catalogue de tous les artefacts du depot, par type.
 | [`git-submodule-common`](skills/development/git-submodule-common) | Module Python partagé par les skills publish-git-submodule et install-git-submodule : exécution de git sans shell, validation des chemins, branches et URL, a... | 1.0.0 | experimental | Code |
 | [`install-git-submodule`](skills/development/install-git-submodule) | Installe dans le dépôt courant un sous-module Git qui suit une branche d'un autre dépôt (le dépôt entier, ou la branche d'export d'un dossier publiée par pub... | 1.0.0 | experimental | Code |
 | [`java-code-review`](skills/development/java-code-review) | Analyse du code Java afin d'identifier les défauts, risques et améliorations possibles. | 1.1.0 | stable | Code, Desktop, claude.ai, API |
-| [`publish-git-submodule`](skills/development/publish-git-submodule) | Prépare un dépôt entier, ou un seul de ses dossiers (.claude, docs, une bibliothèque), pour être installé comme sous-module Git dans d'autres dépôts, puis au... | 1.0.0 | experimental | Code |
+| [`publish-git-submodule`](skills/development/publish-git-submodule) | Prépare un dépôt entier, ou un seul de ses dossiers (.claude, docs, une bibliothèque), pour être installé comme sous-module Git dans d'autres dépôts, puis au... | 1.0.1 | experimental | Code |
 
 ## Plugins
 
