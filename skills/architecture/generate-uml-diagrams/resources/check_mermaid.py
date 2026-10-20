@@ -287,7 +287,7 @@ def sequence_message(where: str, line: str, state: SequenceState, report: Report
         end = end.strip().lstrip("+-")
         if end:
             state.participants.add(end)
-    if ";" in text:
+    if ";" in re.sub(r"#\w+;", "", text):  # les entites Mermaid (#59;) sont la forme correcte
         report.error(where, "';' dans un message termine l'instruction : ecrire #59;")
 
 
@@ -466,6 +466,7 @@ GOOD = {
     participant A as Api
     participant S as Service
     A->>S: payer(id)
+    S->>S: verifier#59; puis debiter
     alt accepte
         S-->>A: ok
     else refuse
@@ -516,9 +517,12 @@ BAD_ER = """erDiagram
     CLIENT ||--o{ FACTURE : "recoit"
 """
 
+BAD_SEQUENCE = """sequenceDiagram
+    A->>B: verifier; puis debiter"""
+
 EXPECTED_ERRORS = ["nom attendu", "section '## Lecture'", "blocs mermaid", "caracteres speciaux",
                    "nomme 'end'", "'---o'", "non ferme", "attend un classDiagram",
-                   "subgraph vide", "directive", "bloc d'entite non ferme"]
+                   "subgraph vide", "directive", "bloc d'entite non ferme", "';' dans un message"]
 
 
 def check_texts(cases: dict[str, str]) -> Report:
@@ -534,16 +538,19 @@ def check_texts(cases: dict[str, str]) -> Report:
 
 
 def self_test() -> int:
-    ok = check_texts({name: framed(name, diagram) for name, diagram in GOOD.items()})
-    ko = check_texts({"class-composants.md": BAD, "er-casse.md": framed("er", BAD_ER),
-                      "Sequence Paiement.md": framed("x", GOOD["sequence-paiement.md"])})
+    valid_report = check_texts({name: framed(name, diagram) for name, diagram in GOOD.items()})
+    invalid_report = check_texts({
+        "class-composants.md": BAD,
+        "er-casse.md": framed("er", BAD_ER),
+        "sequence-point-virgule.md": framed("seq", BAD_SEQUENCE),
+        "Sequence Paiement.md": framed("x", GOOD["sequence-paiement.md"])})
     nodes = count_flow_nodes([(1, 'A --> B["service (v2)"] --> C'), (2, "C -. lien .-> D & E")])
     failures = []
     if nodes != 5:
         failures.append("comptage des noeuds : %d au lieu de 5" % nodes)
-    if ok.errors:
-        failures.append("des fichiers corrects produisent des erreurs : %s" % ok.errors)
-    missing = [e for e in EXPECTED_ERRORS if not any(e in line for line in ko.errors)]
+    if valid_report.errors:
+        failures.append("des fichiers corrects produisent des erreurs : %s" % valid_report.errors)
+    missing = [e for e in EXPECTED_ERRORS if not any(e in line for line in invalid_report.errors)]
     if missing:
         failures.append("erreurs attendues non detectees : %s" % missing)
     for failure in failures:
