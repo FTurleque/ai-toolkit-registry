@@ -37,6 +37,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from unittest import mock
 
 MANIFEST = ".registry-install.json"
 SKILL_FILE = "SKILL.md"
@@ -176,9 +177,16 @@ def locally_modified(target: str, installed: dict) -> bool:
 
 def backup(dest: str, name: str, target: str) -> str:
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
-    path = os.path.join(os.path.dirname(os.path.abspath(dest)), "skills-backup", "%s-%s" % (name, stamp))
-    shutil.copytree(target, path)
-    return path
+    base = os.path.join(os.path.dirname(os.path.abspath(dest)), "skills-backup", "%s-%s" % (name, stamp))
+    # Deux sauvegardes dans la meme seconde : la seconde prend un suffixe au lieu d'echouer.
+    path, n = base, 1
+    while True:
+        try:
+            shutil.copytree(target, path)
+            return path
+        except FileExistsError:
+            n += 1
+            path = "%s-%d" % (base, n)
 
 
 def write_manifest(root: str, source: str, target: str, name: str, files: dict) -> None:
@@ -254,6 +262,14 @@ def write_files(folder: str, files) -> None:
             fh.write(text)
 
 
+def self_test_backup_collision(dest: str, expect) -> None:
+    """Deux sauvegardes de la meme seconde : la seconde prend le suffixe -2."""
+    with mock.patch.object(time, "strftime", return_value="20000101T000000Z"):
+        twice = [backup(dest, "demo", os.path.join(dest, "demo")) for _ in range(2)]
+    expect("deux sauvegardes de la meme seconde distinctes",
+           twice[1] == twice[0] + "-2" and all(map(os.path.isdir, twice)))
+
+
 def self_test_git_ignored(root: str, dest: str, skill: str, expect) -> None:
     """Dans un depot Git, un fichier ignore du skill n'est ni copie ni compare."""
     subprocess.run(["git", "init", "-q", root], check=True, stdout=subprocess.DEVNULL)
@@ -304,6 +320,7 @@ def self_test() -> int:
         saved = os.listdir(os.path.join(base, "home", "skills-backup"))
         with open(os.path.join(base, "home", "skills-backup", saved[0], SKILL_FILE), encoding="utf-8") as fh:
             expect("la sauvegarde contient la retouche", "retouche locale" in fh.read())
+        self_test_backup_collision(dest, expect)
         expect("copie identique apres remplacement", check(root, dest, "demo")[0])
         expect("hors Git, aucun fichier filtre", hashes(skill, git=True) == hashes(skill))
         git_note = "" if shutil.which("git") else " (git absent : cas du fichier ignore par Git non teste)"

@@ -70,7 +70,8 @@ ignoré est refusé.
 Le dépôt reste la source de vérité : après une modification, relancer `install` ; `check` échoue
 tant que la copie installée diffère des fichiers livrés. Une
 copie installée puis retouchée à la main n'est jamais écrasée sans sauvegarde : elle est d'abord
-recopiée dans `~/.claude/skills-backup/<nom>-<horodatage>/`.
+recopiée dans `~/.claude/skills-backup/<nom>-<horodatage>/` (suffixe `-2`, `-3`… quand une
+sauvegarde de la même seconde existe déjà).
 
 La copie manuelle reste possible, à condition de prendre le dossier entier — `SKILL.md` seul perd
 les `resources/` et les `examples/` auxquels il renvoie :
