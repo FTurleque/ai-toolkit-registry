@@ -32,6 +32,9 @@ HEADER = re.compile(r"^(classDiagram|sequenceDiagram|stateDiagram-v2|stateDiagra
                     r"|flowchart|graph)\b(.*)$")
 FLOW_DIRECTION = re.compile(r"^\s*(TB|TD|BT|RL|LR)\s*$")
 FLOW_ARROW = r"(?:-->|---|-\.->|==>|-\.-)"
+# Texte entre l'ouverture et la pointe d'une fleche ; il peut contenir un tiret isole (re-essai).
+FLOW_LINK_LABEL = re.compile(r"(?<![-=.])(?:--|==)\s+(?:[^-=\s]|[-=](?![-=]))(?:[^-=]|[-=](?![-=]))*?\s+"
+                             r"(?:--+|==+)[->ox]?")
 SEQ_OPENERS = re.compile(r"^(alt|opt|loop|par|critical|break|rect|box)\b")
 SEQ_ARROW = r"-->>|->>|--x|-x|--\)|-\)|-->|->"
 SEQ_MESSAGE = re.compile(r"^[^:%%]+?(%s)[^:]*:" % SEQ_ARROW)
@@ -206,7 +209,9 @@ def flow_nodes_of(line: str) -> set[str]:
         return set()
     bare = re.sub(r'"[^"]*"|\|[^|]*\|', "", line)
     bare = re.sub(r"-\.\s[^.]*\s\.->", "-->", bare)  # libelle de fleche pointillee : -. txt .->
-    segments = re.split(r"[ox<]?(?:--+|-\.+-|==+)[->ox]?", bare)
+    bare = FLOW_LINK_LABEL.sub(" --> ", bare)  # libelle de fleche : -- txt -->, == txt ==>
+    # Le o ou le x d'une fleche double (o--o, x--x) ne colle jamais a un identifiant : Box-->X.
+    segments = re.split(r"(?:(?<!\w)[ox]|<)?(?:--+|-\.+-|==+)[->ox]?", bare)
     nodes = set()
     for segment in segments:
         nodes.update(re.findall(r"(?:^|&)\s*([A-Za-z_]\w*)", segment.strip()))
@@ -544,10 +549,11 @@ def self_test() -> int:
         "er-casse.md": framed("er", BAD_ER),
         "sequence-point-virgule.md": framed("seq", BAD_SEQUENCE),
         "Sequence Paiement.md": framed("x", GOOD["sequence-paiement.md"])})
-    nodes = count_flow_nodes([(1, 'A --> B["service (v2)"] --> C'), (2, "C -. lien .-> D & E")])
+    nodes = count_flow_nodes([(1, 'A --> B["service (v2)"] --> C'), (2, "C -. lien .-> D & E"),
+                              (3, "E -- relance --> Box-->X"), (4, "F -- re-essai --> G == fort ==> H")])
     failures = []
-    if nodes != 5:
-        failures.append("comptage des noeuds : %d au lieu de 5" % nodes)
+    if nodes != 10:
+        failures.append("comptage des noeuds : %d au lieu de 10" % nodes)
     if valid_report.errors:
         failures.append("des fichiers corrects produisent des erreurs : %s" % valid_report.errors)
     missing = [e for e in EXPECTED_ERRORS if not any(e in line for line in invalid_report.errors)]

@@ -14,7 +14,7 @@ description: >-
   onboarding, même sans le mot « diagramme ». À utiliser aussi pour toute demande explicite de
   diagramme, schéma, UML ou Mermaid sur du code. Pas pour un organigramme, une slide ou un dessin
   sans rapport avec un logiciel.
-version: 1.0.0
+version: 1.0.1
 status: experimental
 category: architecture
 tags:

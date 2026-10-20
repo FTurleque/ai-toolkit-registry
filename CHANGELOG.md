@@ -9,6 +9,23 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Corrigé — skill `generate-uml-diagrams` 1.0.1
+
+`resources/check_mermaid.py` compte juste les nœuds d'un `flowchart`, donc n'avertit plus à tort sur la taille :
+
+- le texte d'une flèche libellée (`A -- texte --> B`, `A == texte ==> B`, `A -- texte --- B`) n'est plus pris
+  pour un nœud ;
+- un identifiant qui finit par `o` ou `x` juste avant une flèche (`Box-->X`) reste entier ; le `o` ou le `x`
+  d'une flèche double (`o--o`, `x--x`) ne compte que séparé de l'identifiant.
+
+L'auto-test couvre ces cas, dont un libellé à tiret isolé (`re-essai`) et une flèche épaisse libellée.
+
+### Corrigé — `tools/install_skill.py` : sauvegardes rapprochées
+
+Deux sauvegardes du même skill dans la même seconde ne visent plus le même dossier : la seconde prend un suffixe
+(`<nom>-<horodatage>-2`) au lieu d'échouer sur `FileExistsError` avant tout remplacement. L'auto-test fige
+l'horodatage pour forcer la collision.
+
 ### Ajouté — skill `generate-uml-diagrams` 1.0.0 (expérimental)
 
 Génère, à partir du code, le jeu de diagrammes UML utile pour un module, un sous-module ou une
