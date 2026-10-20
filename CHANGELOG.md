@@ -32,6 +32,14 @@ application entière, en Mermaid, un fichier par diagramme dans `docs/diagrams/<
 Surface déclarée : `claude-code`. Essayé sur un projet Maven de test à trois modules ; le
 déclenchement automatique depuis la copie installée n'a pas encore été observé.
 
+### Modifié — `tools/install_skill.py` ignore ce que Git ignore
+
+`install` et `check` ne livrent et ne comparent que les fichiers du skill que Git ne masque pas (suivis, ou non
+suivis et non ignorés, d'après `git ls-files --cached --others --exclude-standard`). Un rapport du superviseur
+écrit dans `docs/rapport-supervisor/` du skill n'atterrit plus dans la copie installée et ne fait plus échouer
+`check`. Hors d'un dépôt Git, tout le dossier reste livré, sans les caches Python. Un skill dont `SKILL.md` est
+ignoré par Git est refusé. L'auto-test couvre ces cas.
+
 ### Modifié — skill `audit-application` 1.1.0
 
 Report dans le registre de la version utilisée sur claude.ai, qui avait divergé.
