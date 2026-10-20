@@ -58,9 +58,17 @@ python tools/install_skill.py check java-code-review       # la copie correspond
 python tools/install_skill.py uninstall java-code-review
 ```
 
-`install_skill.py` copie le dossier **entier** dans `~/.claude/skills/<nom>/` (ou
-`$CLAUDE_CONFIG_DIR/skills/`, ou `--dest`), sans lien symbolique. Le dépôt reste la source de
-vérité : après une modification, relancer `install` ; `check` échoue tant que la copie diffère. Une
+`install_skill.py` copie le dossier du skill dans `~/.claude/skills/<nom>/` (ou
+`$CLAUDE_CONFIG_DIR/skills/`, ou `--dest`), sans lien symbolique. Il livre les fichiers que Git ne
+masque pas dans ce dossier : suivis, ou non suivis et non ignorés
+(`git ls-files --cached --others --exclude-standard`). Un fichier ignoré par Git, comme un rapport
+du superviseur écrit dans `docs/rapport-supervisor/` par une commande lancée depuis le dossier du
+skill, n'est ni copié ni comparé. Hors d'un dépôt Git, tout le dossier est livré. Les caches Python
+(`__pycache__`, `.pytest_cache`, `*.pyc`) ne le sont jamais, et un skill dont `SKILL.md` serait
+ignoré est refusé.
+
+Le dépôt reste la source de vérité : après une modification, relancer `install` ; `check` échoue
+tant que la copie installée diffère des fichiers livrés. Une
 copie installée puis retouchée à la main n'est jamais écrasée sans sauvegarde : elle est d'abord
 recopiée dans `~/.claude/skills-backup/<nom>-<horodatage>/`.
 
