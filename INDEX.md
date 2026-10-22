@@ -39,4 +39,4 @@ Catalogue de tous les artefacts du depot, par type.
 
 | Artefact | Description | Version | Statut | Surfaces |
 |----------|-------------|---------|--------|----------|
-| [`code-supervisor`](plugins/code-supervisor) | Supervision automatique du code produit par un agent, avec renvoi en correction sur probleme bloquant. | 1.2.0 | experimental | Code, Desktop |
+| [`code-supervisor`](plugins/code-supervisor) | Supervision automatique du code produit par un agent, avec renvoi en correction sur probleme bloquant. | 1.2.1 | experimental | Code, Desktop |

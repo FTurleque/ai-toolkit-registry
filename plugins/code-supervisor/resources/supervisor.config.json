@@ -1,5 +1,5 @@
 {
-  "_doc": "Configuration du superviseur de code. Copie ce fichier dans ~/.claude/ pour le global, ou dans <projet>/.claude/ pour surcharger projet par projet. Toute cle absente reprend la valeur par defaut. Securite : un fichier de projet ne peut pas fixer external_tools, llm.cli ni log_dir (ils sont ignores) ; declare-les dans ~/.claude/.",
+  "_doc": "Configuration du superviseur de code. Copie ce fichier dans ~/.claude/ pour le global, ou dans <projet>/.claude/ pour surcharger projet par projet. Toute cle absente reprend la valeur par defaut. Securite : un fichier de projet ne peut pas fixer external_tools, llm.cli ni log_dir (ils sont ignores) ; declare-les dans ~/.claude/. Un projet peut en revanche fixer log_subdir, sous-dossier des rapports relatif a sa racine Git (refuse s'il est absolu, contient .. ou .git, ou sort de la racine par un lien).",
 
   "enabled": true,
   "block_on_severity": ["CRITICAL"],
@@ -44,5 +44,6 @@
   ],
 
   "quiet_paths": [],
-  "log_dir": ""
+  "log_dir": "",
+  "log_subdir": "docs/rapport-supervisor"
 }
