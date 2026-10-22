@@ -218,7 +218,7 @@ sous-dossier lit la meme configuration, ecrit dans le meme dossier de rapport et
 | `llm.enabled`, `llm.model` | couche modele : la couper, ou changer de modele |
 | `external_tools` | outils a appeler (ruff, eslint, checkstyle). **Vide par defaut** : rien ne s'execute sans declaration explicite, aucun build ni CI n'est declenche par surprise. **Honore uniquement depuis la configuration utilisateur ou celle du moteur, jamais depuis un projet.** Des exemples prets a copier sont dans le fichier |
 | `quiet_paths` | chemins ou le superviseur se tait |
-| `log_subdir` | sous-dossier des rapports et de l'etat, relatif a la racine Git (`docs/rapport-supervisor` par defaut). **Admis dans la configuration du projet**, confine sous sa racine : un chemin absolu, avec lecteur, `..`, `.git` ou caractere de motif, ou qui sort de la racine par un lien symbolique, est refuse avec un avertissement et le defaut s'applique. Les rapports y sont exclus de la relecture |
+| `log_subdir` | sous-dossier des rapports et de l'etat, relatif a la racine Git (`docs/rapport-supervisor` par defaut). **Admis dans la configuration du projet**, confine sous sa racine : un chemin absolu, avec lecteur, `..`, `.git` ou caractere de motif, ou qui sort de la racine par un lien symbolique, est refuse avec un avertissement et le defaut s'applique ; si le defaut sort lui-meme de la racine par un lien, les rapports vont dans `<temp>/code-supervisor/<empreinte de la racine>`. Les rapports y sont exclus de la relecture |
 | `enabled` | `false` pour tout desactiver sans desinstaller |
 
 Variables d'environnement : `SUPERVISOR_NO_LLM=1` coupe la couche modele pour une execution,

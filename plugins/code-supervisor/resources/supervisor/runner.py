@@ -196,16 +196,30 @@ def _is_inside(root: str, path: str) -> bool:
         return False        # lecteurs differents sous Windows : hors de la racine
 
 
+def outside_log_dir(root: str) -> str:
+    """Dossier temporaire propre au projet, pour le cas ou meme le dossier par defaut sort de sa racine."""
+    digest = hashlib.sha256(os.path.realpath(root).encode("utf-8", "replace")).hexdigest()[:16]
+    return os.path.join(tempfile.gettempdir(), "code-supervisor", digest)
+
+
 def confined_log_dir(root: str, value) -> str:
     """Dossier `<root>/<value>` si `value` est un sous-dossier relatif qui reste sous la racine, sinon
-    le dossier par defaut. `value` peut venir du depot supervise : il ne doit jamais faire ecrire ailleurs."""
+    le dossier par defaut s'il y reste, sinon un dossier temporaire propre au projet. `value` et les liens
+    symboliques du depot viennent du depot supervise : ils ne doivent jamais faire ecrire ailleurs."""
     subdir = normalize_log_subdir(value)
     directory = os.path.join(root, *subdir.split("/")) if subdir else None
     if directory and _is_inside(root, directory):
         return directory
-    sys.stderr.write("superviseur : log_subdir %r refuse (sous-dossier relatif de la racine du projet attendu, "
-                     "sans '..', sans '.git', sans lien qui en sort) ; rapports dans %s\n" % (value, DEFAULT_LOG_SUBDIR))
-    return os.path.join(root, *DEFAULT_LOG_SUBDIR.split("/"))
+    default = os.path.join(root, *DEFAULT_LOG_SUBDIR.split("/"))
+    if _is_inside(root, default):
+        sys.stderr.write("superviseur : log_subdir %r refuse (sous-dossier relatif de la racine du projet attendu, "
+                         "sans '..', sans '.git', sans lien qui en sort) ; rapports dans %s\n"
+                         % (value, DEFAULT_LOG_SUBDIR))
+        return default
+    fallback = outside_log_dir(root)
+    sys.stderr.write("superviseur : %s sort de la racine du projet (lien symbolique) ; rapports dans %s\n"
+                     % (DEFAULT_LOG_SUBDIR, fallback))
+    return fallback
 
 
 def log_dir_for(root: str, cfg) -> str:
@@ -488,6 +502,11 @@ def _log_subdir_problems() -> list:
             chosen = confined_log_dir(project, "lien/rapports")
         if chosen != os.path.join(project, *DEFAULT_LOG_SUBDIR.split("/")):
             problems.append("un lien symbolique fait ecrire hors du projet")
+        os.symlink(outside, os.path.join(project, "docs"), target_is_directory=True)
+        with contextlib.redirect_stderr(io.StringIO()):
+            chosen = confined_log_dir(project, DEFAULT_LOG_SUBDIR)
+        if chosen != outside_log_dir(project):
+            problems.append("un lien symbolique sur le dossier par defaut fait ecrire hors du projet")
     return problems
 
 

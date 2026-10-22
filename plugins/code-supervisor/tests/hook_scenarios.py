@@ -194,6 +194,14 @@ def _nested_scenarios(sandbox: Sandbox, results: dict) -> None:
     results["nested_state_dirs"] = _state_dirs(sandbox)
 
 
+def _cli_scenarios(sandbox: Sandbox, results: dict, bad: str, clean: str) -> None:
+    """Mode manuel `--check`, avec ou sans chemin, et `--self-test`."""
+    results["cli_check_bad"] = sandbox.run(bad, args=["--check", "a.py"], raw="")
+    results["cli_check_clean"] = sandbox.run(clean, args=["--check", "b.py"], raw="")
+    results["cli_check_diff"] = sandbox.run(bad, args=["--check"], raw="")
+    results["self_test"] = sandbox.run(bad, args=["--self-test"], raw="")
+
+
 def run(script: str) -> dict:
     sandbox = Sandbox(script)
     results = {}
@@ -270,11 +278,7 @@ def run(script: str) -> dict:
         results["accented_path"] = sandbox.run(accented, raw=raw)
 
         _nested_scenarios(sandbox, results)
-
-        results["cli_check_bad"] =sandbox.run(bad, args=["--check", "a.py"], raw="")
-        results["cli_check_clean"] = sandbox.run(clean, args=["--check", "b.py"], raw="")
-        results["cli_check_diff"] = sandbox.run(bad, args=["--check"], raw="")
-        results["self_test"] = sandbox.run(bad, args=["--self-test"], raw="")
+        _cli_scenarios(sandbox, results, bad, clean)
         results["states"] = _states(bad)
     finally:
         sandbox.close()

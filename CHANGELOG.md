@@ -20,7 +20,9 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
   admise dans `<projet>/.claude/supervisor.config.json`. Elle est confinée sous la racine Git : un chemin
   absolu, avec lecteur ou `:`, `..`, `.git` ou caractère de motif, ou qui sort de la racine par un lien
   symbolique, est refusé avec un avertissement sur la sortie d'erreur, et le défaut s'applique. `log_dir`
-  reste interdit à un projet. Le motif d'exclusion des rapports suit le sous-dossier configuré.
+  reste interdit à un projet. Le motif d'exclusion des rapports suit le sous-dossier configuré. Si le dossier
+  par défaut sort lui-même de la racine par un lien symbolique, les rapports et l'état vont dans un dossier
+  temporaire propre au projet (`<temp>/code-supervisor/<empreinte de la racine>`).
 - **Conventions lues par le relecteur** : `.claude/CLAUDE.md` s'ajoute aux fichiers de conventions par défaut
   (`llm.convention_files`).
 - **Tests** : dix scénarios de bout en bout ajoutés à la suite `hook` (sous-dossier courant, état retrouvé à la
