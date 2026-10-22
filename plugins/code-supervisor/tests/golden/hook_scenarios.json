@@ -119,6 +119,102 @@
   "state-s9.json"
  ],
  "log_gitignore": "*\n",
+ "log_subdir_project": {
+  "rc": 0,
+  "stderr": "",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/configured/docs/project/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "log_subdir_project_files": [
+  ".gitignore",
+  "rapport-<ts>.md",
+  "state-d2.json"
+ ],
+ "log_subdir_project_states": {
+  "state-d2.json": {
+   "head": true,
+   "released_signatures": 0,
+   "reviewed": [],
+   "rounds": 1,
+   "rounds_by_signature": [
+    1
+   ]
+  }
+ },
+ "log_subdir_refused_absolute": {
+  "rc": 0,
+  "stderr": "superviseur : log_subdir '/etc/rapports' refuse (sous-dossier relatif de la racine du projet attendu, sans '..', sans '.git', sans lien qui en sort) ; rapports dans docs/rapport-supervisor\n",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/hostile_absolute/docs/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "log_subdir_refused_git": {
+  "rc": 0,
+  "stderr": "superviseur : log_subdir '.git/rapports' refuse (sous-dossier relatif de la racine du projet attendu, sans '..', sans '.git', sans lien qui en sort) ; rapports dans docs/rapport-supervisor\n",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/hostile_git/docs/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "log_subdir_refused_parent": {
+  "rc": 0,
+  "stderr": "superviseur : log_subdir '../dehors' refuse (sous-dossier relatif de la racine du projet attendu, sans '..', sans '.git', sans lien qui en sort) ; rapports dans docs/rapport-supervisor\n",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/hostile_parent/docs/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "nested_cwd_round_1": {
+  "rc": 0,
+  "stderr": "",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/nested/docs/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "nested_cwd_round_2_from_root": {
+  "rc": 0,
+  "stderr": "",
+  "stdout": {
+   "decision": "block",
+   "reason": "SUPERVISEUR DE CODE — correction requise avant de rendre la main.\n\n1 probleme(s) bloquant(s) detecte(s) dans les fichiers que tu viens de modifier.\n\n## A corriger maintenant\n- **CRITICAL / Bug** — a.py:4\n  - Probleme : Exception capturee puis ignoree (pass) : l'erreur disparait sans trace.\n  - A faire : Journaliser l'exception (logger.exception) ou la propager ; preciser aussi le type attendu au lieu d'un except nu.\n  - Code : `except Exception:`\n\n## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)\n- **MINOR / Bug** — a.py:4\n  - Probleme : Capture d'exception trop large.\n  - A faire : Capturer les types d'exception reellement attendus ; si la capture large est voulue, journaliser et renvoyer une exception metier.\n  - Code : `except Exception:`\n\n## Comment proceder\n1. Corrige chaque point bloquant ci-dessus, dans les fichiers indiques.\n2. Ne touche pas au code hors du perimetre de ta tache et de ces corrections.\n3. Si un point est un faux positif, ne le contourne pas : explique en une ligne pourquoi le code est correct, puis continue.\n4. N'ajoute ni suppression d'avertissement (NOSONAR, @SuppressWarnings, # noqa) ni desactivation de test pour faire taire un controle.\n\nRapport complet : <work>/nested/docs/rapport-supervisor/rapport-<ts>.md",
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), 1 critical, 1 minor — agent renvoye en correction."
+  }
+ },
+ "nested_state_dirs": [
+  "bad/docs/rapport-supervisor",
+  "clean/docs/rapport-supervisor",
+  "configured/docs/project/rapport-supervisor",
+  "dépôt/docs/rapport-supervisor",
+  "hinted/docs/rapport-supervisor",
+  "hostile_absolute/docs/rapport-supervisor",
+  "hostile_git/docs/rapport-supervisor",
+  "hostile_parent/docs/rapport-supervisor",
+  "logs",
+  "nested/docs/rapport-supervisor",
+  "reviewed/docs/rapport-supervisor",
+  "started/docs/rapport-supervisor",
+  "stepwise/docs/rapport-supervisor"
+ ],
+ "nested_states": {
+  "state-d1.json": {
+   "head": true,
+   "released_signatures": 0,
+   "reviewed": [],
+   "rounds": 2,
+   "rounds_by_signature": [
+    2
+   ]
+  }
+ },
  "no_change": {
   "rc": 0,
   "stderr": "",

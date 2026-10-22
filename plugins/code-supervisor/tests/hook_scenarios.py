@@ -136,9 +136,9 @@ def _failing_reviewer(sandbox: Sandbox) -> str:
     return launcher
 
 
-def _states(repo: str) -> dict:
+def _states(repo: str, subdir: str = os.path.join("docs", "rapport-supervisor")) -> dict:
     """Etat anti-boucle persiste, sans la duree ni les empreintes (qui dependent du hachage)."""
-    folder = os.path.join(repo, "docs", "rapport-supervisor")
+    folder = os.path.join(repo, subdir)
     states = {}
     for name in sorted(os.listdir(folder)):
         if name.startswith("state-"):
@@ -151,6 +151,47 @@ def _states(repo: str) -> dict:
             state["released_signatures"] = len(state.get("released_signatures", []))
             states[name] = state
     return states
+
+
+def _state_dirs(sandbox: Sandbox) -> list:
+    """Dossiers du bac a sable qui contiennent un etat de session, relatifs au dossier de travail."""
+    found = []
+    for folder, _, names in os.walk(sandbox.work):
+        if any(name.startswith("state-") for name in names):
+            found.append(os.path.relpath(folder, sandbox.work).replace("\\", "/"))
+    return sorted(found)
+
+
+def _nested_scenarios(sandbox: Sandbox, results: dict) -> None:
+    """Session dont le dossier courant est un sous-dossier du depot : rapports, etat et configuration
+    de projet se rangent a la racine Git, et la passe suivante retrouve l'etat de la precedente."""
+    nested = sandbox.make_repo("nested", {"a.py": BAD})
+    inner = os.path.join(nested, "pkg", "inner")
+    os.makedirs(inner)
+    payload = {"cwd": inner, "session_id": "d1"}
+    results["nested_cwd_round_1"] = sandbox.run(nested, payload)
+    results["nested_cwd_round_2_from_root"] = sandbox.run(nested, dict(payload, cwd=nested))
+    results["nested_states"] = _states(nested)
+
+    configured = sandbox.make_repo("configured", {"a.py": BAD})
+    os.makedirs(os.path.join(configured, ".claude"))
+    Sandbox.write(configured, os.path.join(".claude", "supervisor.config.json"),
+                  json.dumps({"log_subdir": "docs/project/rapport-supervisor"}))
+    deep = os.path.join(configured, "src", "deep")
+    os.makedirs(deep)
+    results["log_subdir_project"] = sandbox.run(configured, {"cwd": deep, "session_id": "d2"})
+    project_logs = os.path.join("docs", "project", "rapport-supervisor")
+    results["log_subdir_project_files"] = sorted(sandbox.normalize(name) for name in
+                                                 os.listdir(os.path.join(configured, project_logs)))
+    results["log_subdir_project_states"] = _states(configured, project_logs)
+
+    for name, value in (("parent", "../dehors"), ("absolute", "/etc/rapports"),
+                        ("git", ".git/rapports")):
+        hostile = sandbox.make_repo("hostile_" + name, {"a.py": BAD})
+        os.makedirs(os.path.join(hostile, ".claude"))
+        Sandbox.write(hostile, os.path.join(".claude", "supervisor.config.json"), json.dumps({"log_subdir": value}))
+        results["log_subdir_refused_" + name] = sandbox.run(hostile, {"cwd": hostile, "session_id": "d3"})
+    results["nested_state_dirs"] = _state_dirs(sandbox)
 
 
 def run(script: str) -> dict:
@@ -228,7 +269,9 @@ def run(script: str) -> dict:
         raw = json.dumps({"cwd": accented, "session_id": "u1"}, ensure_ascii=False)
         results["accented_path"] = sandbox.run(accented, raw=raw)
 
-        results["cli_check_bad"] = sandbox.run(bad, args=["--check", "a.py"], raw="")
+        _nested_scenarios(sandbox, results)
+
+        results["cli_check_bad"] =sandbox.run(bad, args=["--check", "a.py"], raw="")
         results["cli_check_clean"] = sandbox.run(clean, args=["--check", "b.py"], raw="")
         results["cli_check_diff"] = sandbox.run(bad, args=["--check"], raw="")
         results["self_test"] = sandbox.run(bad, args=["--self-test"], raw="")

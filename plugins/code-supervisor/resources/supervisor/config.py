@@ -8,6 +8,9 @@ import sys
 
 # Cles de premier niveau qu'une configuration de projet ne peut pas fixer (voir _drop_untrusted_keys).
 PROJECT_FORBIDDEN_KEYS = ("external_tools", "log_dir")
+# Sous-dossier des rapports, relatif a la racine Git du projet (cle `log_subdir`).
+DEFAULT_LOG_SUBDIR = "docs/rapport-supervisor"
+_GLOB_CHARS = "*?[]"
 
 DEFAULTS = {
     "enabled": True,
@@ -56,14 +59,15 @@ DEFAULTS = {
         "max_static_findings_in_prompt": 25,
         # Fichiers de conventions lus par le relecteur, s'ils existent.
         "convention_files": [
-            "CLAUDE.md", "CONTRIBUTING.md", "AGENTS.md", ".editorconfig",
+            "CLAUDE.md", ".claude/CLAUDE.md", "CONTRIBUTING.md", "AGENTS.md", ".editorconfig",
             "docs/conventions.md", "docs/CONVENTIONS.md", "CODING_STYLE.md",
         ],
     },
     # Commandes de l'outillage du projet. Vides par defaut : rien n'est lance sans
     # declaration explicite, pour ne jamais declencher de build ou de CI par surprise.
     "external_tools": [],
-    "log_dir": "",          # vide = <projet>/docs/rapport-supervisor
+    "log_dir": "",          # vide = <racine Git>/<log_subdir>
+    "log_subdir": DEFAULT_LOG_SUBDIR,   # relatif a la racine Git, admis dans une configuration de projet
     "quiet_paths": [],      # chemins ou le superviseur ne dit rien
 }
 
@@ -73,7 +77,9 @@ class Config:
         self.data = data
         self.thresholds = data["thresholds"]
         self.excluded_dirs = set(data["excluded_dirs"])
-        self._exclude = data["exclude"]
+        self.log_subdir = normalize_log_subdir(data.get("log_subdir")) or DEFAULT_LOG_SUBDIR
+        # Les rapports ne sont jamais relus, ou qu'ils soient ranges : le motif suit `log_subdir`.
+        self._exclude = list(data["exclude"]) + ["**/%s/**" % self.log_subdir]
 
     def __getitem__(self, key):
         return self.data[key]
@@ -98,6 +104,23 @@ class Config:
         return any(fnmatch.fnmatch(p, pat) for pat in self.data.get("quiet_paths", []))
 
 
+def normalize_log_subdir(value):
+    """Forme normalisee (separateurs `/`) d'un sous-dossier de rapport, ou None s'il est refuse.
+
+    Controle lexical seulement : chemin relatif non vide, sans lecteur ni `:`, sans `..`, sans dossier
+    `.git` et sans caractere de motif. Le confinement sous la racine (liens symboliques compris) est
+    verifie au moment d'ecrire, quand la racine est connue."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip().replace("\\", "/")
+    if not text or text.startswith("/") or ":" in text or any(char in text for char in _GLOB_CHARS):
+        return None
+    parts = [part for part in text.split("/") if part not in ("", ".")]
+    if not parts or any(part == ".." or part.lower() == ".git" for part in parts):
+        return None
+    return "/".join(parts)
+
+
 def _deep_merge(base: dict, override: dict) -> dict:
     out = dict(base)
     for k, v in (override or {}).items():
@@ -119,7 +142,8 @@ def _read_json(path: str) -> dict:
 
 def _drop_untrusted_keys(config: dict):
     """Retire d'une configuration de projet les cles qui designent un programme a lancer
-    (`external_tools`, `llm.cli`) ou un emplacement d'ecriture (`log_dir`).
+    (`external_tools`, `llm.cli`) ou un emplacement d'ecriture libre (`log_dir`). `log_subdir`, confine
+    sous la racine du projet, reste admis.
 
     Le depot supervise est une source non fiable (depot tiers clone) : seules la configuration
     livree avec le plugin et celle de l'utilisateur honorent ces cles. Retourne la configuration
@@ -138,7 +162,8 @@ def _merge_project_config(data: dict, path: str, user_dir: str) -> dict:
     if dropped:
         sys.stderr.write(
             "superviseur : %s declare %s : ignore, une configuration de projet ne peut pas lancer "
-            "de programme ni choisir ou ecrire les rapports. A declarer dans %s si c'est voulu.\n"
+            "de programme ni ecrire hors du projet (log_subdir range les rapports sous sa racine). "
+            "A declarer dans %s si c'est voulu.\n"
             % (path, ", ".join(dropped), os.path.join(user_dir, "supervisor.config.json")))
     return _deep_merge(data, cleaned)
 

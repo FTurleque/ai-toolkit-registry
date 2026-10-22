@@ -9,6 +9,24 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Corrigé — `code-supervisor` 1.2.1 : rapports et état à la racine Git, sous-dossier réglable
+
+- **Racine du projet résolue une seule fois.** Le hook part de la racine Git du dossier courant de la session
+  (à défaut, celle de `CLAUDE_PROJECT_DIR`, puis ce dossier) pour la configuration de projet, le dossier de
+  rapport, l'état de session et le diff. Une session dont le dossier courant était un sous-dossier du dépôt
+  créait `<sous-dossier>/docs/rapport-supervisor/` avec un nouvel `state-<session>.json` : l'état des passes
+  était perdu et tout était relu. Le mode `--check` suit la même règle.
+- **Sous-dossier de rapport réglable par le projet** : clé `log_subdir` (défaut `docs/rapport-supervisor`),
+  admise dans `<projet>/.claude/supervisor.config.json`. Elle est confinée sous la racine Git : un chemin
+  absolu, avec lecteur ou `:`, `..`, `.git` ou caractère de motif, ou qui sort de la racine par un lien
+  symbolique, est refusé avec un avertissement sur la sortie d'erreur, et le défaut s'applique. `log_dir`
+  reste interdit à un projet. Le motif d'exclusion des rapports suit le sous-dossier configuré.
+- **Conventions lues par le relecteur** : `.claude/CLAUDE.md` s'ajoute aux fichiers de conventions par défaut
+  (`llm.convention_files`).
+- **Tests** : dix scénarios de bout en bout ajoutés à la suite `hook` (sous-dossier courant, état retrouvé à la
+  passe suivante, `log_subdir` du projet et valeurs refusées) ; l'auto-test vérifie le confinement, lien
+  symbolique compris. Les entrées existantes des références sont inchangées.
+
 ### Corrigé — skill `publish-git-submodule` 1.0.1
 
 Bac à sable des tests (`tests/sandbox.py`, partagé avec les tests d'`install-git-submodule`) : le nettoyage

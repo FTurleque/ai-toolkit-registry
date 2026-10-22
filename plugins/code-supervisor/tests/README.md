@@ -23,9 +23,9 @@ Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux.
 | `rules` | toutes les règles de détection sur `corpus/` : par ligne, par bloc, par fichier, sécurité, nommage, imports, complexité et bugs par fonction, extraction des fonctions, duplication | `golden/rules.json` |
 | `install` | l'installeur `install.py` : installation, réinstallation, désinstallation, dans un dossier de configuration jetable | `golden/install_scenarios.json` |
 
-**`hook`** (30 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
+**`hook`** (40 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
-transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, chemin accentué, `--check`
+transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, session dont le dossier courant est un sous-dossier du dépôt (rapports, état et configuration de projet à la racine Git, état retrouvé à la passe suivante), `log_subdir` du projet et ses valeurs refusées (`..`, chemin absolu, `.git`), chemin accentué, `--check`
 avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée.
 
 **`install`** (22 entrées) : installation neuve, de projet (`--project`), réinstallation, mise à jour d'un ancien

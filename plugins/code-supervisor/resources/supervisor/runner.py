@@ -16,7 +16,7 @@ import types
 import engine
 import llm
 import report as report_mod
-from config import DEFAULTS, Config, load_config
+from config import DEFAULT_LOG_SUBDIR, DEFAULTS, Config, load_config, normalize_log_subdir
 from model import sort_findings
 from source import (EMPTY_TREE, content_fingerprint, git_changed_lines, git_commit_before, git_head, git_is_ancestor, git_root,
                     load, run_git)
@@ -27,7 +27,6 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EDIT_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit", "StrReplace", "create_file"}
 PATH_KEYS = ("file_path", "path", "notebook_path")
 SUPERVISOR_AGENTS = ("code-supervisor", "supervisor")
-DEFAULT_LOG_SUBDIR = os.path.join("docs", "rapport-supervisor")
 STATE_HISTORY = 30          # empreintes conservees dans l'etat anti-boucle
 REVIEWED_HISTORY = 400      # fichiers dont le contenu relu est retenu
 TRANSCRIPT_TAIL_LINES = 4000
@@ -174,9 +173,44 @@ def _write_self_ignore(directory: str) -> None:
                          % (ignore, err))
 
 
-def log_dir_for(project_dir: str, cfg) -> str:
+def project_root(cwd, project_dir) -> str:
+    """Racine du projet supervise : racine Git du dossier courant de la session, sinon celle de
+    `project_dir` (CLAUDE_PROJECT_DIR), sinon `project_dir`, `cwd` ou le dossier courant du processus.
+
+    Configuration de projet, rapports, etat de session et diff partent tous de cette racine : une session
+    qui change de dossier courant garde le meme dossier de rapport et le meme etat."""
+    for candidate in (cwd, project_dir):
+        root = git_root(candidate) if candidate else None
+        if root:
+            return root
+    return project_dir or cwd or os.getcwd()
+
+
+def _is_inside(root: str, path: str) -> bool:
+    """`path` designe, liens symboliques resolus, un dossier strictement sous `root`."""
+    real_root = os.path.normcase(os.path.realpath(root))
+    real_path = os.path.normcase(os.path.realpath(path))
+    try:
+        return real_path != real_root and os.path.commonpath([real_root, real_path]) == real_root
+    except ValueError:
+        return False        # lecteurs differents sous Windows : hors de la racine
+
+
+def confined_log_dir(root: str, value) -> str:
+    """Dossier `<root>/<value>` si `value` est un sous-dossier relatif qui reste sous la racine, sinon
+    le dossier par defaut. `value` peut venir du depot supervise : il ne doit jamais faire ecrire ailleurs."""
+    subdir = normalize_log_subdir(value)
+    directory = os.path.join(root, *subdir.split("/")) if subdir else None
+    if directory and _is_inside(root, directory):
+        return directory
+    sys.stderr.write("superviseur : log_subdir %r refuse (sous-dossier relatif de la racine du projet attendu, "
+                     "sans '..', sans '.git', sans lien qui en sort) ; rapports dans %s\n" % (value, DEFAULT_LOG_SUBDIR))
+    return os.path.join(root, *DEFAULT_LOG_SUBDIR.split("/"))
+
+
+def log_dir_for(root: str, cfg) -> str:
     directory = cfg.get("log_dir") or os.environ.get("SUPERVISOR_LOG_DIR") \
-        or os.path.join(project_dir, DEFAULT_LOG_SUBDIR)
+        or confined_log_dir(root, cfg.get("log_subdir", DEFAULT_LOG_SUBDIR))
     os.makedirs(directory, exist_ok=True)
     _write_self_ignore(directory)
     return directory
@@ -299,22 +333,21 @@ def hook_main() -> int:
     if payload is None or _must_skip(payload):
         return 0
 
-    project_dir = payload.get("cwd") or os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    root = project_root(payload.get("cwd"), os.environ.get("CLAUDE_PROJECT_DIR"))
     user_dir = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
-    cfg = load_config(project_dir, user_dir, HERE)
+    cfg = load_config(root, user_dir, HERE)
     if not cfg["enabled"]:
         return 0
 
     session_id = str(payload.get("session_id") or "")
-    logs = log_dir_for(project_dir, cfg)
+    logs = log_dir_for(root, cfg)
     st_path = state_path(logs, session_id)
     state = read_state(st_path)
     round_no = int(state.get("rounds", 0)) + 1
 
     started = time.time()
-    root = git_root(project_dir) or project_dir
     base_ref = _base_ref(root, state, payload.get("transcript_path", ""))
-    result = run(project_dir, cfg, touched_files(payload.get("transcript_path", "")), base_ref, state.get("reviewed"))
+    result = run(root, cfg, touched_files(payload.get("transcript_path", "")), base_ref, state.get("reviewed"))
     if result is None:
         return 0
 
@@ -351,15 +384,15 @@ def _review_explicit(argv, explicit, root: str, cfg):
 
 
 def cli_main(argv) -> int:
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR")
+    root = project_root(project_dir or os.getcwd(), project_dir)
     user_dir = os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(os.path.expanduser("~"), ".claude")
-    cfg = load_config(project_dir, user_dir, HERE)
+    cfg = load_config(root, user_dir, HERE)
     explicit = [a for a in argv if not a.startswith("-")]
-    root = git_root(project_dir) or project_dir
     if explicit:
         files, findings, verdict = _review_explicit(argv, explicit, root, cfg)
     else:
-        result = run(project_dir, cfg)
+        result = run(root, cfg)
         if result is None:
             print("Aucun fichier modifie a relire.")
             return 0
@@ -426,6 +459,35 @@ def _project_config_problems() -> list:
         problems.append("external_tools : le projet l'emporte sur l'utilisateur, ou celui de l'utilisateur est perdu")
     if cfg.llm.get("model") != "modele-du-projet":
         problems.append("reglage ordinaire du projet (llm.model) ignore a tort")
+    return problems
+
+
+def _log_subdir_problems() -> list:
+    """`log_subdir` du projet range les rapports sous sa racine, et nulle part ailleurs."""
+    problems = []
+    for value in ("../dehors", "a/../../b", "/etc/x", "\\\\serveur\\partage", "C:/x", "C:x", ".git/x", "docs/*", "", 5):
+        if normalize_log_subdir(value) is not None:
+            problems.append("%r accepte" % (value,))
+    if normalize_log_subdir("docs\\./project//rapports/") != "docs/project/rapports":
+        problems.append("un sous-dossier relatif n'est pas normalise")
+    with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as outside, \
+            tempfile.TemporaryDirectory() as user:
+        _write_json(os.path.join(project, ".claude", "supervisor.config.json"), {"log_subdir": "docs/project/rapports"})
+        cfg = load_config(project, user)
+        if cfg["log_subdir"] != "docs/project/rapports":
+            problems.append("log_subdir du projet ignore")
+        if not cfg.is_excluded("docs/project/rapports/rapport-1.md"):
+            problems.append("le motif d'exclusion ne suit pas log_subdir")
+        if confined_log_dir(project, "docs/project/rapports") != os.path.join(project, "docs", "project", "rapports"):
+            problems.append("log_subdir valide refuse")
+        try:
+            os.symlink(outside, os.path.join(project, "lien"), target_is_directory=True)
+        except (OSError, NotImplementedError, AttributeError):
+            return problems     # liens symboliques non permis (Windows sans privilege) : rien d'autre a verifier
+        with contextlib.redirect_stderr(io.StringIO()):     # le refus est signale sur stderr
+            chosen = confined_log_dir(project, "lien/rapports")
+        if chosen != os.path.join(project, *DEFAULT_LOG_SUBDIR.split("/")):
+            problems.append("un lien symbolique fait ecrire hors du projet")
     return problems
 
 
@@ -532,6 +594,7 @@ def self_test() -> int:
         print("\nECHEC — faux positifs sur les fixtures clean_* : %s" % ", ".join(false_positives))
         return 1
     for label, check in (("configuration de projet", _project_config_problems),
+                         ("dossier de rapport", _log_subdir_problems),
                          ("quoting des fichiers", _quoting_problems),
                          ("outils externes", _external_tool_problems),
                          ("pannes attendues", _failure_handling_problems),
