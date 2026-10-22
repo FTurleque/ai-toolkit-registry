@@ -452,15 +452,19 @@ def _write_json(path: str, content: dict) -> None:
         json.dump(content, fh)
 
 
+CONFIG_FILE_NAME = "supervisor.config.json"
+_SAMPLE_LOG_SUBDIR = "docs/project/rapports"     # sous-dossier de rapport valide, pour l'auto-test
+
+
 def _project_config_problems() -> list:
     """Une configuration de projet hostile ne doit fixer ni programme a lancer ni dossier
     d'ecriture, sans empecher les reglages ordinaires ni ceux de l'utilisateur."""
     hostile = {"external_tools": [{"name": "projet", "command": "x"}], "log_dir": "ailleurs",
                "llm": {"cli": "programme-du-projet", "model": "modele-du-projet"}}
     with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as user:
-        _write_json(os.path.join(project, ".claude", "supervisor.config.json"), hostile)
+        _write_json(os.path.join(project, ".claude", CONFIG_FILE_NAME), hostile)
         _write_json(os.path.join(project, ".supervisor.json"), hostile)
-        _write_json(os.path.join(user, "supervisor.config.json"),
+        _write_json(os.path.join(user, CONFIG_FILE_NAME),
                     {"external_tools": [{"name": "utilisateur", "command": "y"}]})
         with contextlib.redirect_stderr(io.StringIO()):     # l'avertissement attendu n'est pas du bruit utile ici
             cfg = load_config(project, user)
@@ -482,17 +486,17 @@ def _log_subdir_problems() -> list:
     for value in ("../dehors", "a/../../b", "/etc/x", "\\\\serveur\\partage", "C:/x", "C:x", ".git/x", "docs/*", "", 5):
         if normalize_log_subdir(value) is not None:
             problems.append("%r accepte" % (value,))
-    if normalize_log_subdir("docs\\./project//rapports/") != "docs/project/rapports":
+    if normalize_log_subdir("docs\\./project//rapports/") != _SAMPLE_LOG_SUBDIR:
         problems.append("un sous-dossier relatif n'est pas normalise")
     with tempfile.TemporaryDirectory() as project, tempfile.TemporaryDirectory() as outside, \
             tempfile.TemporaryDirectory() as user:
-        _write_json(os.path.join(project, ".claude", "supervisor.config.json"), {"log_subdir": "docs/project/rapports"})
+        _write_json(os.path.join(project, ".claude", CONFIG_FILE_NAME), {"log_subdir": _SAMPLE_LOG_SUBDIR})
         cfg = load_config(project, user)
-        if cfg["log_subdir"] != "docs/project/rapports":
+        if cfg["log_subdir"] != _SAMPLE_LOG_SUBDIR:
             problems.append("log_subdir du projet ignore")
-        if not cfg.is_excluded("docs/project/rapports/rapport-1.md"):
+        if not cfg.is_excluded(_SAMPLE_LOG_SUBDIR + "/rapport-1.md"):
             problems.append("le motif d'exclusion ne suit pas log_subdir")
-        if confined_log_dir(project, "docs/project/rapports") != os.path.join(project, "docs", "project", "rapports"):
+        if confined_log_dir(project, _SAMPLE_LOG_SUBDIR) != os.path.join(project, *_SAMPLE_LOG_SUBDIR.split("/")):
             problems.append("log_subdir valide refuse")
         try:
             os.symlink(outside, os.path.join(project, "lien"), target_is_directory=True)
