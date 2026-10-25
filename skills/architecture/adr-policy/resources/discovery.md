@@ -11,10 +11,10 @@
 | État Git | `git status --short --branch`, branche de base | pas de dépôt Git : pas de sélection par diff possible |
 | Technologies et build | `pom.xml`, `build.gradle*`, `package.json`, `pyproject.toml`, `go.mod`, `*.csproj`, `Cargo.toml`… | le noter ; ne pas deviner |
 | **Tous** les modules | modules Maven/Gradle, workspaces, sous-projets, dossiers de service — pas seulement celui ouvert dans l'IDE | lister ce qui a été vu et ce qui ne l'a pas été |
-| Registre(s) d'ADR | `.archgate/adrs/`, dossiers `adr`, `adrs`, `decisions`, `architecture-decisions` à toute profondeur, fichiers `ADR-*.md`, mentions dans la documentation | « aucun registre d'ADR » est un résultat, pas un échec |
+| Registre(s) d'ADR | `paths.adrs` de `.archgate/config.json` (registre Archgate déclaré), `.archgate/adrs/`, `docs/architecture/adr/`, dossiers `adr`, `adrs`, `decisions`, `architecture-decisions` à toute profondeur, fichiers `ADR-*.md`, mentions dans la documentation | « aucun registre d'ADR » est un résultat, pas un échec |
 | Dossier arc42 | dossier ou fichiers `arc42`, sections numérotées 1 à 12, section 9 | pas d'index des décisions : le signaler |
 | OpenSpec | `openspec/config.yaml`, `openspec/changes/`, `openspec/specs/` ; `openspec --version`, `openspec list --json` | voir plus bas |
-| Archgate | `.archgate/config.json`, `.archgate/adrs/*.rules.ts` ; `archgate --version`, `archgate adr list` | voir plus bas |
+| Archgate | `.archgate/config.json` (dont `paths.adrs`), `*.rules.ts` du registre ; `archgate --version`, `archgate adr list` | voir plus bas |
 | Tests d'architecture | classes ArchUnit (`com.tngtech.archunit`), dependency-cruiser, import-linter, modules Spring Modulith… | « aucun contrôle automatisé » |
 | Commandes de validation | celles que documentent les instructions locales, le README ou la CI (`.github/workflows/`, `Jenkinsfile`, `.gitlab-ci.yml`) | ne pas en inventer |
 

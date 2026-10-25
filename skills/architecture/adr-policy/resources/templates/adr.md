@@ -18,7 +18,7 @@ Viser une page. Les études longues se lient, elles ne se recopient pas.
 
 ## Variante Archgate
 
-Fichier `.archgate/adrs/<ID>-<slug>.md`. Les intitulés de section restent ceux de l'outil ; le contenu est rédigé dans la langue du projet. Le schéma n'a pas de champ de statut : il s'écrit en tête de la décision.
+Fichier `<registre>/<ID>-<slug>.md`, où `<registre>` est `paths.adrs` de `.archgate/config.json` (`docs/architecture/adr/` dans un projet arc42), à défaut `.archgate/adrs/`. Les intitulés de section restent ceux de l'outil ; le contenu est rédigé dans la langue du projet. Le schéma n'a pas de champ de statut : il s'écrit en tête de la décision.
 
 ```markdown
 ---

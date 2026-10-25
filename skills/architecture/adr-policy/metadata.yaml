@@ -6,7 +6,7 @@ description: >-
   des ADR, découverte du contexte d'un projet, articulation avec arc42 et OpenSpec, usage vérifié
   d'Archgate CLI, gabarits d'ADR et de restitution, script d'inventaire. Ne se déclenche pas seul
   et ne s'invoque pas : il est lu par les trois autres skills, qui ne fonctionnent pas sans lui.
-version: 1.0.0
+version: 1.1.0
 status: experimental
 category: architecture
 tags:

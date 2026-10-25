@@ -43,7 +43,7 @@ Conséquences pour tout contrôle :
 
 ## Format d'un ADR
 
-Emplacement `.archgate/adrs/`, fichier `{ID}-{slug}.md`, règles facultatives dans `{ID}-{slug}.rules.ts`.
+Emplacement : le dossier que désigne `paths.adrs` dans `.archgate/config.json`, à défaut `.archgate/adrs/` (voir « Registre hors de `.archgate/` »). Fichier `{ID}-{slug}.md`, règles facultatives dans `{ID}-{slug}.rules.ts`.
 
 | Champ | Obligatoire | Note |
 |---|---|---|
@@ -80,6 +80,18 @@ export default {
 - Imports limités à `node:path`, `node:url`, `node:util`, `node:crypto`. 30 secondes par règle.
 - Pas d'analyse syntaxique Java : une règle sur du Java est une recherche textuelle. Pour des dépendances entre couches ou des cycles, un test ArchUnit dans le build est l'outil adapté ; l'ADR y renvoie, on ne duplique pas sa logique en TypeScript.
 - Ne jamais écrire `rules: true` sans fichier compagnon réel, ni déclarer une contrainte « automatisée » avant d'avoir vu la règle échouer sur une violation.
+
+## Registre hors de `.archgate/`
+
+Dans un projet documenté en arc42 (skill `arc42-architecture`), le registre est `docs/architecture/adr/` et Archgate y est pointé. Constaté avec **Archgate 0.60.0**, par exécution :
+
+- `.archgate/config.json` accepte `"paths": { "adrs": "docs/architecture/adr" }` (chemin relatif à la racine) ; `adr list`, `adr show` et `check`, règles `.rules.ts` comprises, lisent alors ce dossier.
+- Le projet n'est reconnu que si `.archgate/adrs/` **ou** `.archgate/lint/` existe ; sinon : `No .archgate/ directory found`. Garder `.archgate/lint/`.
+- Tout `.md` du dossier (premier niveau seulement) est lu comme un ADR : un `README.md` ou un `template.md` y apparaît dans `unparsedAdrs` de `check --output json`, et `check --strict` échoue (code 1). Ce dossier ne contient que des ADR ; l'index est ailleurs (section 9 d'arc42).
+- `check` régénère `rules.d.ts` dans `.archgate/` et dans le dossier parent du registre (`docs/architecture/rules.d.ts`) : les deux vont dans `.gitignore`. Un fichier de règles du registre référence `../rules.d.ts`.
+- `archgate doctor` compte aussi les `.md` non analysables dans `adr_count` : comparer avec `archgate adr list`.
+
+Déplacer un registre existant : déplacer les `.md` et les `.rules.ts` sans changer `id` ni contenu, ajouter `paths.adrs`, puis vérifier que `adr list` donne les mêmes identifiants et que `check --base HEAD` (arbre propre) exécute le même `total` qu'avant.
 
 ## Initialiser sans le plugin
 
