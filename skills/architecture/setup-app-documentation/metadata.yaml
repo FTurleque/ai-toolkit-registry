@@ -1,0 +1,33 @@
+kind: skill
+name: setup-app-documentation
+displayName: Mise en place de la documentation d'une application
+description: >-
+  Met en place, organise et complète toute la documentation d'une application dans docs/ :
+  arborescence par lecteur (user/, developer/, architecture/, project/), aiguillage docs/README.md,
+  index par dossier, migration des pages existantes par git mv avec table de correspondance, et
+  installe la règle .claude/rules/documentation.md qui garde ce rangement. Délègue docs/architecture/
+  au skill arc42-architecture (ADR au format Archgate dans docs/architecture/adr/). Vérifie si
+  Archgate est installé pour le pointer sur ce registre, et si un superviseur de code est installé
+  pour placer ses rapports dans docs/project/rapport-supervisor/. À utiliser dès qu'il faut
+  structurer, ranger, réorganiser, auditer ou initialiser la documentation d'un dépôt, même sans le
+  mot « documentation » : « range les docs », « mets de l'ordre dans docs/ », « on a deux dossiers
+  d'ADR », « prépare la doc du projet », « où mettre ce fichier », ou un docs/ en vrac. Audite et
+  propose un plan d'abord ; n'écrit et ne déplace qu'après validation explicite.
+version: 1.0.0
+status: experimental
+category: architecture
+tags:
+  - documentation
+  - docs
+  - arc42
+  - adr
+  - archgate
+  - code-supervisor
+compatibility:
+  - claude-code
+requires:
+  - git
+  - python>=3.8 (facultatif, pour check_docs.py)
+authors:
+  - Fabrice Turleque
+license: MIT
