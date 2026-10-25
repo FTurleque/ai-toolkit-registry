@@ -11,7 +11,7 @@ description: >-
   « audite les ADR », « fais le point sur nos décisions d'architecture », « nos ADR sont-ils à
   jour », avant une migration du registre ou l'adoption d'Archgate. Lecture seule par défaut ; ne
   corrige que sur demande explicite.
-version: 1.0.0
+version: 1.0.1
 status: experimental
 category: architecture
 tags:
@@ -82,7 +82,7 @@ Seulement si l'argument `appliquer` est présent ou si l'utilisateur le demande 
 
 ## Registre canonique et migration
 
-Un seul emplacement doit être éditable. S'il y en a plusieurs, ou si une migration vers `.archgate/adrs/` est envisagée, l'audit produit un **plan** et s'arrête là : table de correspondance ancien chemin → nouveau chemin et ancien identifiant → nouvel identifiant, adaptation des métadonnées au schéma réel de l'outil (`archgate.md`), statuts et sens conservés, références à mettre à jour, vérification des liens. Le déplacement lui-même attend la validation du plan. `archgate adr import` n'est pas une conversion sans perte d'un dossier local.
+Un seul emplacement doit être éditable. S'il y en a plusieurs, ou si une migration vers le registre Archgate est envisagée (`paths.adrs` de `.archgate/config.json`, à défaut `.archgate/adrs/` ; `docs/architecture/adr/` dans un projet arc42), l'audit produit un **plan** et s'arrête là : table de correspondance ancien chemin → nouveau chemin et ancien identifiant → nouvel identifiant, adaptation des métadonnées au schéma réel de l'outil (`archgate.md`), statuts et sens conservés, références à mettre à jour, vérification des liens. Le déplacement lui-même attend la validation du plan. `archgate adr import` n'est pas une conversion sans perte d'un dossier local.
 
 ## Limites
 

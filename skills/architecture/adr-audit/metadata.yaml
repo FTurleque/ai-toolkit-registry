@@ -10,7 +10,7 @@ description: >-
   « audite les ADR », « fais le point sur nos décisions d'architecture », « nos ADR sont-ils à
   jour », avant une migration du registre ou l'adoption d'Archgate. Lecture seule par défaut ; ne
   corrige que sur demande explicite.
-version: 1.0.0
+version: 1.0.1
 status: experimental
 category: architecture
 tags:

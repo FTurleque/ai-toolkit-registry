@@ -9,6 +9,32 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Ajouté — skill `arc42-architecture` 3.0.0
+
+Audite la conformité arc42 d'une application, puis crée ou complète `docs/architecture/` (12 sections,
+vues C4 et séquences en Mermaid, ADR) et installe dans l'application la règle
+`.claude/rules/arc42-architecture.md`. Trois modes : audit (lecture seule), intégration après validation,
+maintenance. Statut `experimental`, surface `claude-code`. Grille et gabarits dans `resources/`, exemple de
+rapport d'audit dans `examples/`.
+
+- **Un seul registre d'ADR : `docs/architecture/adr/`, au format Archgate.** Fichiers
+  `<PRÉFIXE>-<NNN>-<slug>.md` avec front matter `id`, `title`, `domain`, `rules`, `files`, intitulés de
+  section d'Archgate, statut en tête de `Decision`. Archgate y est pointé par
+  `"paths": { "adrs": "docs/architecture/adr" }` dans `.archgate/config.json` (vérifié avec Archgate 0.60.0 :
+  `adr list`, `adr show`, `check` et règles `.rules.ts`).
+- **Le dossier `adr/` ne contient que des ADR** : Archgate y lit chaque `.md`, et un `README.md` ou un
+  `template.md` fait échouer `check --strict`. L'index est la section 9 ; le gabarit reste dans le skill.
+- Rupture avec la version 2.0.0 diffusée hors du registre : nommage `ADR-NNNN-*.md`, `adr/README.md` et
+  `adr/template.md` abandonnés.
+
+### Modifié — skills `adr-policy` 1.1.0 et `adr-audit` 1.0.1 : registre Archgate déclaré
+
+Le registre Archgate est celui que désigne `paths.adrs` dans `.archgate/config.json`, à défaut
+`.archgate/adrs/` ; dans un projet arc42, `docs/architecture/adr/`. `archgate.md` documente ce qui a été
+constaté avec Archgate 0.60.0 (détection du projet par `.archgate/lint/`, `.md` non-ADR signalés dans
+`unparsedAdrs`, second `rules.d.ts` à ignorer) et la procédure de déplacement d'un registre. La découverte
+du contexte et l'audit cherchent ce registre déclaré.
+
 ### Corrigé — `code-supervisor` 1.2.1 : rapports et état à la racine Git, sous-dossier réglable
 
 - **Racine du projet résolue une seule fois.** Le hook part de la racine Git du dossier courant de la session

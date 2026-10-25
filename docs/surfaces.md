@@ -72,6 +72,7 @@ artefact déclare cette surface quand il ne suppose rien de l'environnement d'ex
 | `install-git-submodule` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `git-submodule-common` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `generate-uml-diagrams` | skill | ✅ | ⬜ | ❌ | ❌ |
+| `arc42-architecture` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `code-supervisor` | plugin | ✅ | ✅ | ❌ | ❌ |
 
 **Légende**

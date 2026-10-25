@@ -1,0 +1,28 @@
+kind: skill
+name: arc42-architecture
+displayName: Documentation d'architecture arc42
+description: >-
+  Audite la conformité d'une application au standard arc42, puis crée, complète ou corrige sa
+  documentation d'architecture dans docs/architecture/ : les 12 sections arc42, les diagrammes C4
+  (contexte, conteneurs, composants, déploiement) et de séquence en Mermaid, les ADR en Markdown, et
+  la règle qui garde les décisions futures conformes. À utiliser dès que la documentation
+  d'architecture est en jeu, même sans les mots arc42, C4 ou ADR : documenter, revoir ou
+  schématiser l'architecture d'une application, ajouter un service, changer un protocole, tracer une
+  décision technique structurante. Trois modes : AUDIT (rapport de conformité, lecture seule),
+  INTÉGRATION (création ou complétion de docs/architecture/), MAINTENANCE (documentation et ADR
+  tenus à jour). Audite et rend compte d'abord ; n'écrit qu'après validation explicite.
+version: 3.0.0
+status: experimental
+category: architecture
+tags:
+  - arc42
+  - c4
+  - adr
+  - mermaid
+  - documentation
+  - architecture
+compatibility:
+  - claude-code
+authors:
+  - Fabrice Turleque
+license: MIT
