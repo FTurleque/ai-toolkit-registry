@@ -9,6 +9,21 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Ajouté — skill `setup-app-documentation` 1.0.0
+
+Met en place la documentation d'une application dans `docs/`, rangée par lecteur (`user/`, `developer/`,
+`architecture/`, `project/`), avec aiguillage, index par dossier et migration par `git mv` (citations mises à
+jour, table de correspondance des anciens chemins). Installe la règle `.claude/rules/documentation.md`.
+Délègue `docs/architecture/` à `arc42-architecture`. Audit et plan d'abord ; écriture après validation.
+
+- **Archgate** : détecté par `archgate --version` ; installé, il est pointé sur `docs/architecture/adr/`
+  (`paths.adrs`, `.archgate/lint/`, `.gitignore`) sans `archgate init`. Absent : signalé, rien n'est écrit.
+- **Superviseur de code** : `code-supervisor` détecté (plugin ou hook `supervisor.py`) ; installé,
+  `.claude/supervisor.config.json` fixe `log_subdir: docs/project/rapport-supervisor` et tait les relevés
+  datés. Absent : signalé, rien n'est écrit.
+- `resources/check_docs.py` (bibliothèque standard, `--self-test`) contrôle la structure de `docs/`, les
+  liens relatifs, les index, le registre d'ADR et les pages utilisateur trop techniques.
+
 ### Ajouté — skill `arc42-architecture` 3.0.0
 
 Audite la conformité arc42 d'une application, puis crée ou complète `docs/architecture/` (12 sections,

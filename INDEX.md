@@ -8,7 +8,7 @@ Catalogue de tous les artefacts du depot, par type.
 
 | Type | Nombre |
 |------|-------:|
-| Skills | 13 |
+| Skills | 14 |
 | Plugins | 1 |
 | Sous-agents | 0 |
 | Commandes | 0 |
@@ -16,7 +16,7 @@ Catalogue de tous les artefacts du depot, par type.
 | Instructions de projet | 0 |
 | Serveurs MCP | 0 |
 | Styles de sortie | 0 |
-| **Total** | **14** |
+| **Total** | **15** |
 
 ## Skills
 
@@ -35,6 +35,7 @@ Catalogue de tous les artefacts du depot, par type.
 | [`install-git-submodule`](skills/development/install-git-submodule) | Installe dans le dépôt courant un sous-module Git qui suit une branche d'un autre dépôt (le dépôt entier, ou la branche d'export d'un dossier publiée par pub... | 1.0.0 | experimental | Code |
 | [`java-code-review`](skills/development/java-code-review) | Analyse du code Java afin d'identifier les défauts, risques et améliorations possibles. | 1.1.0 | stable | Code, Desktop, claude.ai, API |
 | [`publish-git-submodule`](skills/development/publish-git-submodule) | Prépare un dépôt entier, ou un seul de ses dossiers (.claude, docs, une bibliothèque), pour être installé comme sous-module Git dans d'autres dépôts, puis au... | 1.0.1 | experimental | Code |
+| [`setup-app-documentation`](skills/architecture/setup-app-documentation) | Met en place, organise et complète toute la documentation d'une application dans docs/ : arborescence par lecteur (user/, developer/, architecture/, project/... | 1.0.0 | experimental | Code |
 
 ## Plugins
 
