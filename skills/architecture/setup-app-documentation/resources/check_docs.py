@@ -30,6 +30,7 @@ import re
 import shutil
 import sys
 import tempfile
+from urllib.parse import unquote
 
 DOCS = "docs"
 DOCS_PREFIX = DOCS + "/"
@@ -90,7 +91,7 @@ def local_target(target):
     """Chemin d'un lien relatif, sans ancre ni requete ; None pour un lien externe ou une ancre."""
     if is_external(target):
         return None
-    return target.split("#", 1)[0].split("?", 1)[0] or None
+    return unquote(target.split("#", 1)[0].split("?", 1)[0]) or None
 
 
 def front_matter_id(text):
@@ -162,8 +163,14 @@ class Checker:
         rel = self.rel(os.path.join(folder, name))
         for target in links_of(self.read(os.path.join(folder, name))):
             clean = local_target(target)
-            if clean and not os.path.exists(os.path.normpath(os.path.join(folder, clean))):
+            if clean and not os.path.exists(self.resolve(folder, clean)):
                 self.rep.error(rel, "lien casse : %s" % target)
+
+    def resolve(self, folder, target):
+        """Un lien en « / » part de la racine du depot, comme sur GitHub ; les autres du dossier."""
+        if target.startswith("/"):
+            return os.path.normpath(os.path.join(self.root, target.lstrip("/")))
+        return os.path.normpath(os.path.join(folder, target))
 
     def check_links(self):
         for parts, _dirs, files in self.walk():
@@ -305,7 +312,9 @@ def build_clean_tree(base):
     write(base, "docs/README.md", "[user](user/README.md) [dev](developer/README.md)\n")
     write(base, "docs/user/README.md", "[Installer](INSTALL.md)\n")
     write(base, USER_INSTALL, "Lancer `app`.\n")
-    write(base, "docs/developer/README.md", "[Build](BUILD.md)\n")
+    write(base, "docs/developer/README.md",
+          "[Build](BUILD.md) [Notes](mes%20notes.md) [racine](/docs/README.md)\n")
+    write(base, "docs/developer/mes notes.md")
     write(base, "docs/developer/BUILD.md", "```\n[pas un lien](absent.md)\n```\n./mvnw verify\n")
     write(base, "docs/architecture/adr/ARCH-001-hexagonal.md", "---\nid: ARCH-001\n---\n")
     write(base, "docs/architecture/adr/tsconfig.json", "{}")
