@@ -42,6 +42,12 @@ Ce registre cible Claude et ses surfaces : Claude Code, l'application de bureau,
 l'API. Chaque artefact déclare les surfaces sur lesquelles il fonctionne dans son champ
 `compatibility`. La matrice et les règles sont dans [docs/surfaces.md](docs/surfaces.md).
 
+Ce registre est un **toolkit**, pas un cadre de gouvernance. Il ne contient que des artefacts
+transverses, réutilisables par plusieurs projets. La configuration IA propre à une application (son
+`CLAUDE.md`, ses settings, ses règles) vit dans le dépôt de cette application, jamais ici :
+`instructions/` n'en héberge que des gabarits génériques. Les raisons sont dans
+[GEN-002](.archgate/adrs/GEN-002-transversal-artifacts-only.md).
+
 ---
 
 ## Installer quelque chose depuis ce dépôt
