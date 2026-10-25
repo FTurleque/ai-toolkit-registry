@@ -70,6 +70,12 @@ du contexte et l'audit cherchent ce registre déclaré.
   passe suivante, `log_subdir` du projet et valeurs refusées) ; l'auto-test vérifie le confinement, lien
   symbolique compris. Les entrées existantes des références sont inchangées.
 
+### Ajouté — ADR GEN-002 (proposée) : périmètre du registre
+
+Le registre reste un **toolkit** : il ne contient que des artefacts transverses. La configuration IA
+d'une application vit dans son propre dépôt, et une éventuelle gouvernance IA dans un dépôt distinct.
+Le README le dit dans sa section « Portée », et `docs/architecture.md` indexe l'ADR.
+
 ### Corrigé — skill `publish-git-submodule` 1.0.1
 
 Bac à sable des tests (`tests/sandbox.py`, partagé avec les tests d'`install-git-submodule`) : le nettoyage
