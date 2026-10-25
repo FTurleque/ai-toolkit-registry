@@ -59,7 +59,9 @@ class Report:
         self.errors.append({"where": where, "message": message})
 
     def warn(self, where, message):
-        self.warnings.append({"where": where, "message": message})
+        entry = {"where": where, "message": message}
+        if entry not in self.warnings:  # un fichier lu par plusieurs controles ne compte qu'une fois
+            self.warnings.append(entry)
 
 
 def posix(path):
@@ -116,15 +118,22 @@ class Checker:
 
     def inside(self, path):
         real = os.path.realpath(path)
-        return os.path.commonpath([self.root, real]) == self.root
+        try:
+            return os.path.commonpath([self.root, real]) == self.root
+        except ValueError:  # autre lecteur Windows : hors de la racine
+            return False
 
     def read(self, path):
-        """Texte du fichier, ou "" s'il sort de la racine (lien symbolique) : il n'est pas lu."""
+        """Texte du fichier, ou "" s'il sort de la racine ou ne se lit pas : il n'est pas lu."""
         if not self.inside(path):
             self.rep.warn(self.rel(path), "sort de la racine par un lien symbolique : non lu")
             return ""
-        with open(os.path.realpath(path), "r", encoding="utf-8", errors="replace") as fh:
-            return fh.read()
+        try:
+            with open(os.path.realpath(path), "r", encoding="utf-8", errors="replace") as fh:
+                return fh.read()
+        except OSError as exc:
+            self.rep.warn(self.rel(path), "illisible (%s) : non lu" % exc.__class__.__name__)
+            return ""
 
     def walk(self):
         for current, dirs, files in os.walk(self.docs):
@@ -135,14 +144,17 @@ class Checker:
 
     # -- controles ----------------------------------------------------------------------
 
+    def check_docs_entry(self, name):
+        path = os.path.join(self.docs, name)
+        if os.path.isfile(path) and name != INDEX:
+            self.rep.error(DOCS_PREFIX + name, "fichier a la racine de docs/ : seul README.md y a sa place")
+        elif os.path.isdir(path) and name not in TOP_DIRS:
+            self.rep.error(DOCS_PREFIX + name + "/",
+                           "dossier de premier niveau non prevu (user, developer, architecture, project)")
+
     def check_structure(self):
         for name in sorted(os.listdir(self.docs)):
-            path = os.path.join(self.docs, name)
-            if os.path.isfile(path) and name != INDEX:
-                self.rep.error(DOCS_PREFIX + name, "fichier a la racine de docs/ : seul README.md y a sa place")
-            if os.path.isdir(path) and name not in TOP_DIRS:
-                self.rep.error(DOCS_PREFIX + name + "/",
-                               "dossier de premier niveau non prevu (user, developer, architecture, project)")
+            self.check_docs_entry(name)
         if not os.path.isfile(os.path.join(self.docs, INDEX)):
             self.rep.error(DOCS_PREFIX + INDEX, "aiguillage absent")
 
@@ -322,11 +334,15 @@ def check_symlink_confinement(base):
             os.symlink(os.path.join(outside, "secret.md"), link)
         except (OSError, NotImplementedError):
             return
+        dangling = os.path.join(base, "docs", "user", "DANGLING.md")
+        os.symlink(os.path.join(base, "docs", "user", "absent.md"), dangling)
         rep = run(base)
         expect(not any(e["where"] == "docs/user/LEAK.md" for e in rep.errors), rep.errors)
-        expect(any(w["where"] == "docs/user/LEAK.md" and "non lu" in w["message"] for w in rep.warnings),
-               rep.warnings)
+        for name in ("LEAK.md", "DANGLING.md"):
+            expect(any(w["where"] == "docs/user/" + name and "non lu" in w["message"] for w in rep.warnings),
+                   rep.warnings)
         os.remove(link)
+        os.remove(dangling)
     finally:
         shutil.rmtree(outside, ignore_errors=True)
 
