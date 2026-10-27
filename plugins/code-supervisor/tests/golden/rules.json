@@ -29,6 +29,11 @@
   "file": [],
   "lines": []
  },
+ "defaut|tout|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "defaut|tout|generated/tests/test_secrets.py": {
   "blocks": [],
   "file": [],
@@ -145,34 +150,34 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     3,
     5,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     8,
     10,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     13,
     15,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
@@ -284,12 +289,12 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     5,
     7,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "} catch (IOException e) {",
     "IOException e"
    ]
@@ -390,6 +395,73 @@
   "file": [],
   "lines": []
  },
+ "defaut|tout|java/InlineCatches.java": {
+  "blocks": [
+   [
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
+    "bug",
+    14,
+    14,
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "CRITICAL",
+    "bug",
+    22,
+    22,
+    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+    "9e6be3e1",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    "RuntimeException e"
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "MAJOR",
+    "bug",
+    28,
+    30,
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
+    "} catch (NoSuchFileException e) {",
+    "NoSuchFileException e"
+   ]
+  ],
+  "file": [],
+  "lines": [
+   [
+    "BUG.EMPTY_RETURN_NULL",
+    "MINOR",
+    "bug",
+    14,
+    0,
+    "Retour de null.",
+    "83605cba",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_BROAD",
+    "MINOR",
+    "bug",
+    22,
+    0,
+    "Capture d'exception trop large.",
+    "6fc54750",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    null
+   ]
+  ]
+ },
+ "defaut|tout|java/LoopFilling.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "defaut|tout|java/Naming.java": {
   "blocks": [],
   "file": [],
@@ -430,6 +502,11 @@
   ]
  },
  "defaut|tout|java/Nested.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
+ "defaut|tout|java/SecretKeywords.java": {
   "blocks": [],
   "file": [],
   "lines": []
@@ -479,6 +556,11 @@
     null
    ]
   ]
+ },
+ "defaut|tout|java/SqlMessages.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
  },
  "defaut|tout|java/TempDirNaming.java": {
   "blocks": [],
@@ -587,15 +669,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ],
    [
     "BUG.RESOURCE_LEAK",
@@ -980,15 +1062,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ],
    [
     "BUG.RESOURCE_LEAK",
@@ -1351,15 +1433,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ]
   ],
   "file": [
@@ -1660,15 +1742,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -1800,15 +1882,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [],
@@ -2003,15 +2085,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -3245,6 +3327,11 @@
   "file": [],
   "lines": []
  },
+ "defaut|un_sur_sept|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "defaut|un_sur_sept|generated/tests/test_secrets.py": {
   "blocks": [],
   "file": [],
@@ -3327,34 +3414,34 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     3,
     5,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     8,
     10,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     13,
     15,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
@@ -3538,6 +3625,73 @@
   "file": [],
   "lines": []
  },
+ "defaut|un_sur_sept|java/InlineCatches.java": {
+  "blocks": [
+   [
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
+    "bug",
+    14,
+    14,
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "CRITICAL",
+    "bug",
+    22,
+    22,
+    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+    "9e6be3e1",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    "RuntimeException e"
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "MAJOR",
+    "bug",
+    28,
+    30,
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
+    "} catch (NoSuchFileException e) {",
+    "NoSuchFileException e"
+   ]
+  ],
+  "file": [],
+  "lines": [
+   [
+    "BUG.EMPTY_RETURN_NULL",
+    "MINOR",
+    "bug",
+    14,
+    0,
+    "Retour de null.",
+    "83605cba",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_BROAD",
+    "MINOR",
+    "bug",
+    22,
+    0,
+    "Capture d'exception trop large.",
+    "6fc54750",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    null
+   ]
+  ]
+ },
+ "defaut|un_sur_sept|java/LoopFilling.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "defaut|un_sur_sept|java/Naming.java": {
   "blocks": [],
   "file": [],
@@ -3556,6 +3710,11 @@
   ]
  },
  "defaut|un_sur_sept|java/Nested.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
+ "defaut|un_sur_sept|java/SecretKeywords.java": {
   "blocks": [],
   "file": [],
   "lines": []
@@ -3605,6 +3764,11 @@
     null
    ]
   ]
+ },
+ "defaut|un_sur_sept|java/SqlMessages.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
  },
  "defaut|un_sur_sept|java/TempDirNaming.java": {
   "blocks": [],
@@ -4488,15 +4652,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -4595,15 +4759,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [],
@@ -4742,15 +4906,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -6673,6 +6837,38 @@
    ]
   ]
  },
+ "extra|defaut|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "ConnectionUrlTest.fixtureUrl",
+    4,
+    6,
+    [],
+    "ConnectionUrlTest",
+    "String",
+    "",
+    2,
+    "daed1954"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": [
+   [
+    "SEC.CONNSTRING",
+    "MAJOR",
+    "securite",
+    5,
+    0,
+    "Chaine de connexion contenant un mot de passe.",
+    "90df9287",
+    "954ac30b",
+    null
+   ]
+  ]
+ },
  "extra|defaut|generated/tests/test_secrets.py": {
   "function_bugs": [],
   "function_quality": [],
@@ -7835,6 +8031,225 @@
   "naming": [],
   "security": []
  },
+ "extra|defaut|java/InlineCatches.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "InlineCatches.rethrow",
+    9,
+    11,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Object",
+    "",
+    2,
+    "986f8073"
+   ],
+   [
+    "InlineCatches.silentNull",
+    13,
+    15,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Integer",
+    "",
+    2,
+    "5cc10331"
+   ],
+   [
+    "InlineCatches.fallbackMove",
+    17,
+    19,
+    [
+     "Path from",
+     "Path to"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    2,
+    "97181eeb"
+   ],
+   [
+    "InlineCatches.reallyEmpty",
+    21,
+    23,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    2,
+    "02e8fba3"
+   ],
+   [
+    "InlineCatches.shortComment",
+    25,
+    31,
+    [
+     "Path p"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    6,
+    "6a98c2f5"
+   ],
+   [
+    "InlineCatches.parse",
+    33,
+    33,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Object",
+    "",
+    0,
+    "e3b0c442"
+   ]
+  ],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    9,
+    0,
+    "Le nom `s` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "Object rethrow(String s) {",
+    "s"
+   ],
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    25,
+    0,
+    "Le nom `p` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "void shortComment(Path p) throws IOException {",
+    "p"
+   ]
+  ],
+  "security": []
+ },
+ "extra|defaut|java/LoopFilling.java": {
+  "function_bugs": [
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    26,
+    32,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    34,
+    36,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growOnOneLine(List<String> names) {",
+    "LoopFilling.growOnOneLine"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    38,
+    44,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropAllman(List<String> names)",
+    "LoopFilling.dropAllman"
+   ]
+  ],
+  "function_quality": [],
+  "functions": [
+   [
+    "LoopFilling.fillThenRead",
+    5,
+    15,
+    [
+     "int count"
+    ],
+    "LoopFilling",
+    "int",
+    "",
+    10,
+    "76242bda"
+   ],
+   [
+    "LoopFilling.copyThenClear",
+    17,
+    24,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "List<String>",
+    "",
+    7,
+    "190ef033"
+   ],
+   [
+    "LoopFilling.dropWhileIterating",
+    26,
+    32,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    6,
+    "1c0df5e9"
+   ],
+   [
+    "LoopFilling.growOnOneLine",
+    34,
+    36,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    2,
+    "194c54be"
+   ],
+   [
+    "LoopFilling.dropAllman",
+    38,
+    44,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    6,
+    "4626c233"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": []
+ },
  "extra|defaut|java/Naming.java": {
   "function_bugs": [],
   "function_quality": [],
@@ -8392,6 +8807,64 @@
   "naming": [],
   "security": []
  },
+ "extra|defaut|java/SecretKeywords.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "SecretKeywords.looksSensitive",
+    2,
+    5,
+    [
+     "String text"
+    ],
+    "SecretKeywords",
+    "boolean",
+    "",
+    3,
+    "241c2851"
+   ],
+   [
+    "SecretKeywords.afterApostrophe",
+    7,
+    10,
+    [],
+    "SecretKeywords",
+    "String",
+    "",
+    3,
+    "44b0c90b"
+   ],
+   [
+    "SecretKeywords.log",
+    12,
+    12,
+    [
+     "String message"
+    ],
+    "SecretKeywords",
+    "void",
+    "",
+    0,
+    "e3b0c442"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": [
+   [
+    "SEC.HARDCODED_SECRET",
+    "CRITICAL",
+    "securite",
+    8,
+    0,
+    "Secret ecrit en dur dans le code.",
+    "64c04d2c",
+    "log(\"can't reach the vault\"); String password = \"K7#mq2vZ\";",
+    null
+   ]
+  ]
+ },
  "extra|defaut|java/Security.java": {
   "function_bugs": [],
   "function_quality": [],
@@ -8461,7 +8934,7 @@
    ],
    [
     "SEC.SQL_CONCAT",
-    "CRITICAL",
+    "MAJOR",
     "securite",
     17,
     0,
@@ -8656,6 +9129,134 @@
   "imports": [],
   "naming": [],
   "security": []
+ },
+ "extra|defaut|java/SqlMessages.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "SqlMessages.failureMessage",
+    5,
+    7,
+    [
+     "long orderId"
+    ],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "1d2db366"
+   ],
+   [
+    "SqlMessages.twoLiterals",
+    9,
+    11,
+    [],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "102fda88"
+   ],
+   [
+    "SqlMessages.inList",
+    13,
+    15,
+    [
+     "String placeholders"
+    ],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "4c2e4fb4"
+   ],
+   [
+    "SqlMessages.direct",
+    17,
+    19,
+    [
+     "Statement st",
+     "String name"
+    ],
+    "SqlMessages",
+    "void",
+    "",
+    2,
+    "3f7283e3"
+   ]
+  ],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    17,
+    0,
+    "Le nom `st` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "void direct(Statement st, String name) throws SQLException {",
+    "st"
+   ]
+  ],
+  "security": [
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    6,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"Cannot update order \" + orderId;",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    10,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"INSERT INTO audit(id, at) VALUES (?, ?) \" + \"ON CONFLICT DO NOTHING\";",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    14,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"SELECT id FROM item WHERE id IN (\" + placeholders + \")\";",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "CRITICAL",
+    "securite",
+    18,
+    0,
+    "Requete SQL construite par concatenation de chaines : injection SQL possible.",
+    "ec9113a2",
+    "st.executeQuery(\"SELECT * FROM users WHERE name = '\" + name + \"'\");",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    18,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "st.executeQuery(\"SELECT * FROM users WHERE name = '\" + name + \"'\");",
+    null
+   ]
+  ]
  },
  "extra|defaut|java/TempDirNaming.java": {
   "function_bugs": [],
@@ -11392,7 +11993,7 @@
    ],
    [
     "SEC.CONNSTRING",
-    "CRITICAL",
+    "MAJOR",
     "securite",
     14,
     0,
@@ -11804,6 +12405,38 @@
     "Jeton d'API (Slack / GitHub) en clair.",
     "9f5175ea",
     "f64e4b3d",
+    null
+   ]
+  ]
+ },
+ "extra|seuils_fonctions|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "ConnectionUrlTest.fixtureUrl",
+    4,
+    6,
+    [],
+    "ConnectionUrlTest",
+    "String",
+    "",
+    2,
+    "daed1954"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": [
+   [
+    "SEC.CONNSTRING",
+    "MAJOR",
+    "securite",
+    5,
+    0,
+    "Chaine de connexion contenant un mot de passe.",
+    "90df9287",
+    "954ac30b",
     null
    ]
   ]
@@ -13232,6 +13865,304 @@
   "naming": [],
   "security": []
  },
+ "extra|seuils_fonctions|java/InlineCatches.java": {
+  "function_bugs": [],
+  "function_quality": [
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    25,
+    31,
+    "InlineCatches.shortComment fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void shortComment(Path p) throws IOException {",
+    "InlineCatches.shortComment"
+   ]
+  ],
+  "functions": [
+   [
+    "InlineCatches.rethrow",
+    9,
+    11,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Object",
+    "",
+    2,
+    "986f8073"
+   ],
+   [
+    "InlineCatches.silentNull",
+    13,
+    15,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Integer",
+    "",
+    2,
+    "5cc10331"
+   ],
+   [
+    "InlineCatches.fallbackMove",
+    17,
+    19,
+    [
+     "Path from",
+     "Path to"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    2,
+    "97181eeb"
+   ],
+   [
+    "InlineCatches.reallyEmpty",
+    21,
+    23,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    2,
+    "02e8fba3"
+   ],
+   [
+    "InlineCatches.shortComment",
+    25,
+    31,
+    [
+     "Path p"
+    ],
+    "InlineCatches",
+    "void",
+    "",
+    6,
+    "6a98c2f5"
+   ],
+   [
+    "InlineCatches.parse",
+    33,
+    33,
+    [
+     "String s"
+    ],
+    "InlineCatches",
+    "Object",
+    "",
+    0,
+    "e3b0c442"
+   ]
+  ],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    9,
+    0,
+    "Le nom `s` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "Object rethrow(String s) {",
+    "s"
+   ],
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    25,
+    0,
+    "Le nom `p` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "void shortComment(Path p) throws IOException {",
+    "p"
+   ]
+  ],
+  "security": []
+ },
+ "extra|seuils_fonctions|java/LoopFilling.java": {
+  "function_bugs": [
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    26,
+    32,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    34,
+    36,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growOnOneLine(List<String> names) {",
+    "LoopFilling.growOnOneLine"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    38,
+    44,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropAllman(List<String> names)",
+    "LoopFilling.dropAllman"
+   ]
+  ],
+  "function_quality": [
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    5,
+    15,
+    "LoopFilling.fillThenRead a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "int fillThenRead(int count) {",
+    "LoopFilling.fillThenRead"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    5,
+    15,
+    "LoopFilling.fillThenRead fait 10 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "int fillThenRead(int count) {",
+    "LoopFilling.fillThenRead"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    17,
+    24,
+    "LoopFilling.copyThenClear fait 7 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "List<String> copyThenClear(List<String> names) {",
+    "LoopFilling.copyThenClear"
+   ],
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    26,
+    32,
+    "LoopFilling.dropWhileIterating a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    26,
+    32,
+    "LoopFilling.dropWhileIterating fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    38,
+    44,
+    "LoopFilling.dropAllman fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void dropAllman(List<String> names)",
+    "LoopFilling.dropAllman"
+   ]
+  ],
+  "functions": [
+   [
+    "LoopFilling.fillThenRead",
+    5,
+    15,
+    [
+     "int count"
+    ],
+    "LoopFilling",
+    "int",
+    "",
+    10,
+    "76242bda"
+   ],
+   [
+    "LoopFilling.copyThenClear",
+    17,
+    24,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "List<String>",
+    "",
+    7,
+    "190ef033"
+   ],
+   [
+    "LoopFilling.dropWhileIterating",
+    26,
+    32,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    6,
+    "1c0df5e9"
+   ],
+   [
+    "LoopFilling.growOnOneLine",
+    34,
+    36,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    2,
+    "194c54be"
+   ],
+   [
+    "LoopFilling.dropAllman",
+    38,
+    44,
+    [
+     "List<String> names"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    6,
+    "4626c233"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": []
+ },
  "extra|seuils_fonctions|java/Naming.java": {
   "function_bugs": [],
   "function_quality": [
@@ -13856,6 +14787,87 @@
   "naming": [],
   "security": []
  },
+ "extra|seuils_fonctions|java/SecretKeywords.java": {
+  "function_bugs": [],
+  "function_quality": [
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    2,
+    5,
+    "SecretKeywords.looksSensitive a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "boolean looksSensitive(String text) {",
+    "SecretKeywords.looksSensitive"
+   ],
+   [
+    "CPX.CONDITION",
+    "MINOR",
+    "complexite",
+    4,
+    0,
+    "Condition composee de 2 operateurs booleens dans SecretKeywords.looksSensitive.",
+    "002d039a",
+    "return lower.contains(\"pwd=\") || lower.contains(\"uid=\") || lower.contains(\"token=\");",
+    "SecretKeywords.looksSensitive"
+   ]
+  ],
+  "functions": [
+   [
+    "SecretKeywords.looksSensitive",
+    2,
+    5,
+    [
+     "String text"
+    ],
+    "SecretKeywords",
+    "boolean",
+    "",
+    3,
+    "241c2851"
+   ],
+   [
+    "SecretKeywords.afterApostrophe",
+    7,
+    10,
+    [],
+    "SecretKeywords",
+    "String",
+    "",
+    3,
+    "44b0c90b"
+   ],
+   [
+    "SecretKeywords.log",
+    12,
+    12,
+    [
+     "String message"
+    ],
+    "SecretKeywords",
+    "void",
+    "",
+    0,
+    "e3b0c442"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": [
+   [
+    "SEC.HARDCODED_SECRET",
+    "CRITICAL",
+    "securite",
+    8,
+    0,
+    "Secret ecrit en dur dans le code.",
+    "64c04d2c",
+    "log(\"can't reach the vault\"); String password = \"K7#mq2vZ\";",
+    null
+   ]
+  ]
+ },
  "extra|seuils_fonctions|java/Security.java": {
   "function_bugs": [],
   "function_quality": [
@@ -13948,7 +14960,7 @@
    ],
    [
     "SEC.SQL_CONCAT",
-    "CRITICAL",
+    "MAJOR",
     "securite",
     17,
     0,
@@ -14143,6 +15155,134 @@
   "imports": [],
   "naming": [],
   "security": []
+ },
+ "extra|seuils_fonctions|java/SqlMessages.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "functions": [
+   [
+    "SqlMessages.failureMessage",
+    5,
+    7,
+    [
+     "long orderId"
+    ],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "1d2db366"
+   ],
+   [
+    "SqlMessages.twoLiterals",
+    9,
+    11,
+    [],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "102fda88"
+   ],
+   [
+    "SqlMessages.inList",
+    13,
+    15,
+    [
+     "String placeholders"
+    ],
+    "SqlMessages",
+    "String",
+    "",
+    2,
+    "4c2e4fb4"
+   ],
+   [
+    "SqlMessages.direct",
+    17,
+    19,
+    [
+     "Statement st",
+     "String name"
+    ],
+    "SqlMessages",
+    "void",
+    "",
+    2,
+    "3f7283e3"
+   ]
+  ],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    17,
+    0,
+    "Le nom `st` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "void direct(Statement st, String name) throws SQLException {",
+    "st"
+   ]
+  ],
+  "security": [
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    6,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"Cannot update order \" + orderId;",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    10,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"INSERT INTO audit(id, at) VALUES (?, ?) \" + \"ON CONFLICT DO NOTHING\";",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    14,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"SELECT id FROM item WHERE id IN (\" + placeholders + \")\";",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "CRITICAL",
+    "securite",
+    18,
+    0,
+    "Requete SQL construite par concatenation de chaines : injection SQL possible.",
+    "ec9113a2",
+    "st.executeQuery(\"SELECT * FROM users WHERE name = '\" + name + \"'\");",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    18,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "st.executeQuery(\"SELECT * FROM users WHERE name = '\" + name + \"'\");",
+    null
+   ]
+  ]
  },
  "extra|seuils_fonctions|java/TempDirNaming.java": {
   "function_bugs": [],
@@ -17686,7 +18826,7 @@
    ],
    [
     "SEC.CONNSTRING",
-    "CRITICAL",
+    "MAJOR",
     "securite",
     14,
     0,
@@ -17981,6 +19121,13 @@
     null
    ]
   ]
+ },
+ "partial|seuils_fonctions|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "imports": [],
+  "naming": [],
+  "security": []
  },
  "partial|seuils_fonctions|generated/tests/test_secrets.py": {
   "function_bugs": [],
@@ -18590,6 +19737,145 @@
   "naming": [],
   "security": []
  },
+ "partial|seuils_fonctions|java/InlineCatches.java": {
+  "function_bugs": [],
+  "function_quality": [
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    25,
+    31,
+    "InlineCatches.shortComment fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void shortComment(Path p) throws IOException {",
+    "InlineCatches.shortComment"
+   ]
+  ],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    9,
+    0,
+    "Le nom `s` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "Object rethrow(String s) {",
+    "s"
+   ]
+  ],
+  "security": []
+ },
+ "partial|seuils_fonctions|java/LoopFilling.java": {
+  "function_bugs": [
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    26,
+    32,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    34,
+    36,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growOnOneLine(List<String> names) {",
+    "LoopFilling.growOnOneLine"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    38,
+    44,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void dropAllman(List<String> names)",
+    "LoopFilling.dropAllman"
+   ]
+  ],
+  "function_quality": [
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    5,
+    15,
+    "LoopFilling.fillThenRead a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "int fillThenRead(int count) {",
+    "LoopFilling.fillThenRead"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    5,
+    15,
+    "LoopFilling.fillThenRead fait 10 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "int fillThenRead(int count) {",
+    "LoopFilling.fillThenRead"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    17,
+    24,
+    "LoopFilling.copyThenClear fait 7 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "List<String> copyThenClear(List<String> names) {",
+    "LoopFilling.copyThenClear"
+   ],
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    26,
+    32,
+    "LoopFilling.dropWhileIterating a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    26,
+    32,
+    "LoopFilling.dropWhileIterating fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void dropWhileIterating(List<String> names) {",
+    "LoopFilling.dropWhileIterating"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    38,
+    44,
+    "LoopFilling.dropAllman fait 6 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void dropAllman(List<String> names)",
+    "LoopFilling.dropAllman"
+   ]
+  ],
+  "imports": [],
+  "naming": [],
+  "security": []
+ },
  "partial|seuils_fonctions|java/Naming.java": {
   "function_bugs": [],
   "function_quality": [
@@ -18881,6 +20167,25 @@
   "naming": [],
   "security": []
  },
+ "partial|seuils_fonctions|java/SecretKeywords.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "imports": [],
+  "naming": [],
+  "security": [
+   [
+    "SEC.HARDCODED_SECRET",
+    "CRITICAL",
+    "securite",
+    8,
+    0,
+    "Secret ecrit en dur dans le code.",
+    "64c04d2c",
+    "log(\"can't reach the vault\"); String password = \"K7#mq2vZ\";",
+    null
+   ]
+  ]
+ },
  "partial|seuils_fonctions|java/Security.java": {
   "function_bugs": [],
   "function_quality": [
@@ -18945,7 +20250,7 @@
    ],
    [
     "SEC.SQL_CONCAT",
-    "CRITICAL",
+    "MAJOR",
     "securite",
     17,
     0,
@@ -19028,6 +20333,59 @@
   "imports": [],
   "naming": [],
   "security": []
+ },
+ "partial|seuils_fonctions|java/SqlMessages.java": {
+  "function_bugs": [],
+  "function_quality": [],
+  "imports": [],
+  "naming": [
+   [
+    "NAM.TOO_SHORT",
+    "MINOR",
+    "nommage",
+    17,
+    0,
+    "Le nom `st` est trop court pour etre compris hors contexte.",
+    "0b794e7a",
+    "void direct(Statement st, String name) throws SQLException {",
+    "st"
+   ]
+  ],
+  "security": [
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    6,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"Cannot update order \" + orderId;",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    10,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"INSERT INTO audit(id, at) VALUES (?, ?) \" + \"ON CONFLICT DO NOTHING\";",
+    null
+   ],
+   [
+    "SEC.SQL_CONCAT",
+    "MAJOR",
+    "securite",
+    14,
+    0,
+    "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
+    "73afec40",
+    "return \"SELECT id FROM item WHERE id IN (\" + placeholders + \")\";",
+    null
+   ]
+  ]
  },
  "partial|seuils_fonctions|java/TempDirNaming.java": {
   "function_bugs": [],
@@ -21081,6 +22439,23 @@
   ],
   "lines": []
  },
+ "seuils_bas|tout|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "blocks": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    5,
+    0,
+    "Ligne de 72 caracteres (seuil 60).",
+    "b875b8b0",
+    "954ac30b",
+    null
+   ]
+  ],
+  "lines": []
+ },
  "seuils_bas|tout|generated/tests/test_secrets.py": {
   "blocks": [],
   "file": [
@@ -21311,34 +22686,34 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     3,
     5,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     8,
     10,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     13,
     15,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
@@ -21462,12 +22837,12 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     5,
     7,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "} catch (IOException e) {",
     "IOException e"
    ]
@@ -21635,6 +23010,107 @@
   "file": [],
   "lines": []
  },
+ "seuils_bas|tout|java/InlineCatches.java": {
+  "blocks": [
+   [
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
+    "bug",
+    14,
+    14,
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "CRITICAL",
+    "bug",
+    22,
+    22,
+    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+    "9e6be3e1",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    "RuntimeException e"
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "MAJOR",
+    "bug",
+    28,
+    30,
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
+    "} catch (NoSuchFileException e) {",
+    "NoSuchFileException e"
+   ]
+  ],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    10,
+    0,
+    "Ligne de 95 caracteres (seuil 60).",
+    "b875b8b0",
+    "try { return parse(s); } catch (IllegalStateException e) { throw new RuntimeException(e); }",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    14,
+    0,
+    "Ligne de 87 caracteres (seuil 60).",
+    "b875b8b0",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    18,
+    0,
+    "Ligne de 133 caracteres (seuil 60).",
+    "b875b8b0",
+    "try { Files.move(from, to, StandardCopyOption.ATOMIC_MOVE); } catch (AtomicMoveNotSupportedException e) { Files.move(fro",
+    null
+   ]
+  ],
+  "lines": [
+   [
+    "BUG.EMPTY_RETURN_NULL",
+    "MINOR",
+    "bug",
+    14,
+    0,
+    "Retour de null.",
+    "83605cba",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_BROAD",
+    "MINOR",
+    "bug",
+    22,
+    0,
+    "Capture d'exception trop large.",
+    "6fc54750",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    null
+   ]
+  ]
+ },
+ "seuils_bas|tout|java/LoopFilling.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "seuils_bas|tout|java/Naming.java": {
   "blocks": [],
   "file": [
@@ -21689,6 +23165,34 @@
  "seuils_bas|tout|java/Nested.java": {
   "blocks": [],
   "file": [],
+  "lines": []
+ },
+ "seuils_bas|tout|java/SecretKeywords.java": {
+  "blocks": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    4,
+    0,
+    "Ligne de 88 caracteres (seuil 60).",
+    "b875b8b0",
+    "return lower.contains(\"pwd=\") || lower.contains(\"uid=\") || lower.contains(\"token=\");",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    8,
+    0,
+    "Ligne de 63 caracteres (seuil 60).",
+    "b875b8b0",
+    "log(\"can't reach the vault\"); String password = \"K7#mq2vZ\";",
+    null
+   ]
+  ],
   "lines": []
  },
  "seuils_bas|tout|java/Security.java": {
@@ -21848,6 +23352,56 @@
    ]
   ]
  },
+ "seuils_bas|tout|java/SqlMessages.java": {
+  "blocks": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    10,
+    0,
+    "Ligne de 81 caracteres (seuil 60).",
+    "b875b8b0",
+    "return \"INSERT INTO audit(id, at) VALUES (?, ?) \" + \"ON CONFLICT DO NOTHING\";",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    14,
+    0,
+    "Ligne de 68 caracteres (seuil 60).",
+    "b875b8b0",
+    "return \"SELECT id FROM item WHERE id IN (\" + placeholders + \")\";",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    17,
+    0,
+    "Ligne de 62 caracteres (seuil 60).",
+    "b875b8b0",
+    "void direct(Statement st, String name) throws SQLException {",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    18,
+    0,
+    "Ligne de 71 caracteres (seuil 60).",
+    "b875b8b0",
+    "st.executeQuery(\"SELECT * FROM users WHERE name = '\" + name + \"'\");",
+    null
+   ]
+  ],
+  "lines": []
+ },
  "seuils_bas|tout|java/TempDirNaming.java": {
   "blocks": [],
   "file": [],
@@ -21955,15 +23509,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ],
    [
     "BUG.RESOURCE_LEAK",
@@ -22392,15 +23946,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ],
    [
     "BUG.RESOURCE_LEAK",
@@ -22807,15 +24361,15 @@
     null
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     40,
     40,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { run(); } catch (Exception e) { continue; }",
-    "Exception e"
+    null
    ]
   ],
   "file": [
@@ -23160,15 +24714,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -23300,15 +24854,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [],
@@ -23527,15 +25081,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -25096,6 +26650,11 @@
   ],
   "lines": []
  },
+ "seuils_bas|un_sur_sept|generated/src/test/java/demo/ConnectionUrlTest.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "seuils_bas|un_sur_sept|generated/tests/test_secrets.py": {
   "blocks": [],
   "file": [
@@ -25259,34 +26818,34 @@
   "blocks": [
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     3,
     5,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     8,
     10,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
    [
     "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "MAJOR",
     "bug",
     13,
     15,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
     "try { run(); } catch (Exception e) {",
     "Exception e"
    ],
@@ -25538,6 +27097,96 @@
   "file": [],
   "lines": []
  },
+ "seuils_bas|un_sur_sept|java/InlineCatches.java": {
+  "blocks": [
+   [
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
+    "bug",
+    14,
+    14,
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "CRITICAL",
+    "bug",
+    22,
+    22,
+    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+    "9e6be3e1",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    "RuntimeException e"
+   ],
+   [
+    "BUG.CATCH_SWALLOWED",
+    "MAJOR",
+    "bug",
+    28,
+    30,
+    "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+    "603699e7",
+    "} catch (NoSuchFileException e) {",
+    "NoSuchFileException e"
+   ]
+  ],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    10,
+    0,
+    "Ligne de 95 caracteres (seuil 60).",
+    "b875b8b0",
+    "try { return parse(s); } catch (IllegalStateException e) { throw new RuntimeException(e); }",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    14,
+    0,
+    "Ligne de 87 caracteres (seuil 60).",
+    "b875b8b0",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ]
+  ],
+  "lines": [
+   [
+    "BUG.EMPTY_RETURN_NULL",
+    "MINOR",
+    "bug",
+    14,
+    0,
+    "Retour de null.",
+    "83605cba",
+    "try { return Integer.valueOf(s); } catch (NumberFormatException e) { return null; }",
+    null
+   ],
+   [
+    "BUG.CATCH_BROAD",
+    "MINOR",
+    "bug",
+    22,
+    0,
+    "Capture d'exception trop large.",
+    "6fc54750",
+    "try { parse(s); } catch (RuntimeException e) { }",
+    null
+   ]
+  ]
+ },
+ "seuils_bas|un_sur_sept|java/LoopFilling.java": {
+  "blocks": [],
+  "file": [],
+  "lines": []
+ },
  "seuils_bas|un_sur_sept|java/Naming.java": {
   "blocks": [],
   "file": [
@@ -25570,6 +27219,23 @@
  "seuils_bas|un_sur_sept|java/Nested.java": {
   "blocks": [],
   "file": [],
+  "lines": []
+ },
+ "seuils_bas|un_sur_sept|java/SecretKeywords.java": {
+  "blocks": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    8,
+    0,
+    "Ligne de 63 caracteres (seuil 60).",
+    "b875b8b0",
+    "log(\"can't reach the vault\"); String password = \"K7#mq2vZ\";",
+    null
+   ]
+  ],
   "lines": []
  },
  "seuils_bas|un_sur_sept|java/Security.java": {
@@ -25717,6 +27383,45 @@
     null
    ]
   ]
+ },
+ "seuils_bas|un_sur_sept|java/SqlMessages.java": {
+  "blocks": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    10,
+    0,
+    "Ligne de 81 caracteres (seuil 60).",
+    "b875b8b0",
+    "return \"INSERT INTO audit(id, at) VALUES (?, ?) \" + \"ON CONFLICT DO NOTHING\";",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    14,
+    0,
+    "Ligne de 68 caracteres (seuil 60).",
+    "b875b8b0",
+    "return \"SELECT id FROM item WHERE id IN (\" + placeholders + \")\";",
+    null
+   ],
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    17,
+    0,
+    "Ligne de 62 caracteres (seuil 60).",
+    "b875b8b0",
+    "void direct(Statement st, String name) throws SQLException {",
+    null
+   ]
+  ],
+  "lines": []
  },
  "seuils_bas|un_sur_sept|java/TempDirNaming.java": {
   "blocks": [],
@@ -26732,15 +28437,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [
@@ -26839,15 +28544,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [],
@@ -26998,15 +28703,15 @@
     "e"
    ],
    [
-    "BUG.CATCH_SWALLOWED",
-    "CRITICAL",
+    "BUG.CATCH_SILENT_RETURN",
+    "MAJOR",
     "bug",
     9,
     9,
-    "Exception capturee puis ignoree : l'erreur disparait sans trace.",
-    "9e6be3e1",
+    "Exception capturee et transformee en sortie silencieuse.",
+    "c623e077",
     "try { await run(); } catch (e) { return; }",
-    "e"
+    null
    ]
   ],
   "file": [

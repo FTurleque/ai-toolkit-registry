@@ -43,7 +43,7 @@ ont aussi leur scénario. L'installeur tourne avec un `HOME` et un `USERPROFILE`
 ignorerait `CLAUDE_CONFIG_DIR` écrirait là, pas dans le `~/.claude` de la personne qui lance les tests. La suite
 est ignorée quand `install.py` n'est pas à côté du moteur testé (cas de `--script ~/.claude/hooks/supervisor.py`).
 
-**`rules`** (621 entrées), trois familles :
+**`rules`** (656 entrées), trois familles :
 
 - `<config>|<sélection>|<fichier>` : `check_lines`, `check_blocks` et `check_file`, avec deux jeux de seuils
   (défauts et seuils bas) et deux sélections de lignes modifiées (toutes, une sur sept : `is_changed`

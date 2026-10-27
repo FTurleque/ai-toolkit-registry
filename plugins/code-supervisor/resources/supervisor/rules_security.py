@@ -42,12 +42,11 @@ PATTERNS = [
     # ---------------------------------------------------------------- injection
     ("SEC.SQL_CONCAT", None, re.compile(
         r"(?i)(?:execute|executeQuery|executeUpdate|executeBatch|createQuery|createNativeQuery|"
-        r"prepareStatement|rawQuery|query|exec)\s*\(\s*(?:[\"'][^\"']*(?:select|insert|update|delete|drop|where|from)[^\"']*[\"']\s*\+|"
-        r"[\"'][^\"']*[\"']\s*\+)"), CRITICAL,
+        r"prepareStatement|rawQuery|query|exec)\s*\(\s*(?:\"[^\"]*\"|'[^']*')\s*\+"), CRITICAL,
      "Requete SQL construite par concatenation de chaines : injection SQL possible.",
      "Utiliser une requete parametree (PreparedStatement avec ?, parametres nommes JPA, bind variables) au lieu de concatener les valeurs."),
     ("SEC.SQL_CONCAT", None, re.compile(
-        r"(?i)([\"'])(?:(?!\1).)*?\b(?:select\s|insert\s+into|update\s|delete\s+from|where\s|values\s*\()(?:(?!\1).)*\1\s*\+"), CRITICAL,
+        r"(?i)([\"'])(?:(?!\1).)*?\b(?:select\s|insert\s+into|update\s|delete\s+from|where\s|values\s*\()(?:(?!\1).)*\1\s*\+"), MAJOR,
      "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
      "Construire la requete avec des parametres lies (PreparedStatement, parametres nommes) et ne jamais concatener une valeur dans le texte SQL."),
     ("SEC.SQL_FSTRING", ("python",), re.compile(
@@ -136,8 +135,9 @@ _SECRET_RULES = {
     "SEC.AWS_KEY", "SEC.PRIVATE_KEY", "SEC.JWT", "SEC.SLACK_GH_TOKEN",
     "SEC.HARDCODED_SECRET", "SEC.CONNSTRING",
 }
-# Secrets a format connu : meme en code de test, ils restent critiques.
-_KEEP_SEVERITY_IN_TESTS = ("SEC.AWS_KEY", "SEC.PRIVATE_KEY", "SEC.JWT", "SEC.SLACK_GH_TOKEN", "SEC.CONNSTRING")
+# Secrets a format connu : meme en code de test, ils restent critiques. Une chaine de connexion de test porte
+# des identifiants factices sur un hote d'exemple : elle suit la regle commune du code de test.
+_KEEP_SEVERITY_IN_TESTS = ("SEC.AWS_KEY", "SEC.PRIVATE_KEY", "SEC.JWT", "SEC.SLACK_GH_TOKEN")
 _COMMENT_PREFIXES = ("//", "#", "*", "/*")
 _MAX_LINE_CHARS = 2000        # au-dela, la ligne brute est tronquee (fichier minifie, donnees embarquees)
 # Un generateur pseudo-aleatoire ne pose probleme que s'il produit un secret : il lui faut un mot-cle voisin.
@@ -145,10 +145,29 @@ _RANDOM_CONTEXT = re.compile(r"(?i)(token|secret|password|passwd|salt|nonce|otp|
 _SAFE_EVAL = re.compile(r"(?i)\b(?:safe_?eval|ast\.literal_eval)\b")
 
 
+def _inside_literal(raw: str, position: int) -> bool:
+    """Vrai si `position` tombe dans un litteral de chaine ouvert plus tot sur la ligne : dans `contains("pwd=")`,
+    le mot-cle fait partie du texte cherche, et le guillemet qui le suit ferme ce texte au lieu d'ouvrir une valeur."""
+    opened = None          # delimiteur du litteral en cours ; l'autre type de guillemet y est un caractere ordinaire
+    escaped = False
+    for char in raw[:position]:
+        if escaped:
+            escaped = False
+        elif char == "\\" and opened:
+            escaped = True
+        elif char == opened:
+            opened = None
+        elif char in "\"'" and not opened:
+            opened = char
+    return opened is not None
+
+
 def _is_false_match(sf: SourceFile, rule_id: str, match, raw: str) -> bool:
     """Exceptions propres a certaines regles : une correspondance du motif qui n'est pas un constat."""
     if rule_id in _SECRET_RULES and PLACEHOLDER.search(match.group(0)):
         return True
+    if rule_id == "SEC.HARDCODED_SECRET":
+        return _inside_literal(raw, match.start(1))
     if rule_id == "SEC.INSECURE_RANDOM":
         return not _RANDOM_CONTEXT.search(raw)
     if rule_id == "SEC.EVAL":

@@ -201,15 +201,22 @@ def _catch_findings(sf: SourceFile, clean, i: int, match) -> List[Finding]:
     body, closing = _brace_body(clean, i, match.end(0) - 1)
     if _is_empty_body(body):
         # Un bloc vide mais commente est une decision assumee : on signale sans bloquer.
-        documented = len(_comment_in(sf, i + 1, closing + 1)) >= _DOCUMENTED_MIN_CHARS
+        # Un commentaire trop court pour justifier quoi que ce soit reste signale, sans bloquer non plus.
+        comment = _comment_in(sf, i + 1, closing + 1)
+        documented = len(comment) >= _DOCUMENTED_MIN_CHARS
+        noted = bool(comment) and not documented
         return [Finding(
             rule="BUG.CATCH_SWALLOWED", category=CAT_BUG,
-            severity=MINOR if documented else CRITICAL,
+            severity=MINOR if documented else MAJOR if noted else CRITICAL,
             message=("Exception capturee et ignoree, avec justification en commentaire."
                      if documented else
+                     "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix."
+                     if noted else
                      "Exception capturee puis ignoree : l'erreur disparait sans trace."),
             fix=("Verifier que l'absence de journalisation est toujours justifiee."
                  if documented else
+                 "Dire en une phrase pourquoi l'erreur peut etre ignoree, ou la journaliser avec son contexte."
+                 if noted else
                  "Journaliser l'exception avec son contexte, ou la propager ; un bloc catch vide n'est acceptable qu'avec un commentaire expliquant pourquoi l'erreur peut etre ignoree."),
             file=sf.path, line=i + 1, end_line=closing + 1,
             evidence=sf.snippet(i + 1), symbol=match.group(1).strip()[:60],
@@ -310,6 +317,10 @@ def _brace_body(lines, start_line: int, brace_col: int):
             elif c == "}":
                 depth -= 1
                 if depth == 0:
+                    # le texte qui precede l'accolade fermante fait partie du corps : `{ throw e; }` n'est pas vide
+                    tail = line[begin + 1 if i == start_line else 0:col].strip()
+                    if tail:
+                        body.append(tail)
                     return body, i
         if i > start_line or depth > 0:
             segment = line if i != start_line else line[brace_col + 1:]
@@ -331,6 +342,31 @@ def _comment_in(sf, start: int, end: int) -> str:
 
 def _is_empty_body(body) -> bool:
     return all((not b) or b in ("{", "}") for b in body)
+
+
+_FOR_EACH = re.compile(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+\w+\s*:\s*(\w+)\s*\)")
+
+
+def _loop_body(lines, i: int, header_end: int) -> str:
+    """Corps d'une boucle dont l'en-tete se termine en `header_end` sur la ligne `i` : bloc entre accolades,
+    ouvert sur la meme ligne ou la suivante (style Allman), ou instruction unique sur la meme ligne ou la suivante."""
+    rest = lines[i][header_end:]
+    if not rest.strip() and i + 1 < len(lines):
+        i, rest, header_end = i + 1, lines[i + 1], 0
+    if rest.lstrip().startswith("{"):
+        body, _ = _brace_body(lines, i, header_end + rest.index("{"))
+        return "\n".join(body)
+    return rest
+
+
+def _modifies_iterated_collection(lines) -> bool:
+    """Vrai si une boucle `for (x : coll)` modifie `coll` dans son propre corps."""
+    for i, line in enumerate(lines):
+        for m in _FOR_EACH.finditer(line):
+            mutation = r"\b%s\.(?:add|remove|clear|put)\s*\(" % re.escape(m.group(1))
+            if re.search(mutation, _loop_body(lines, i, m.end())):
+                return True
+    return False
 
 
 def _is_tested_for_value(body: str, divisor: str) -> bool:
@@ -364,17 +400,14 @@ def check_function_bugs(sf: SourceFile, functions: List[Function]) -> List[Findi
                 evidence=sf.snippet(fn.start),
             ))
         # boucle qui modifie la collection iteree
-        if re.search(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+(\w+)\s*:\s*(\w+)\s*\)", body):
-            m = re.search(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+(\w+)\s*:\s*(\w+)\s*\)", body)
-            coll = m.group(2)
-            if re.search(r"\b%s\.(?:add|remove|clear|put)\s*\(" % re.escape(coll), body):
-                findings.append(Finding(
-                    rule="BUG.CONCURRENT_MODIFICATION", category=CAT_BUG, severity=CRITICAL,
-                    message="Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
-                    fix="Parcourir une copie, utiliser un Iterator avec remove(), ou removeIf().",
-                    file=sf.path, line=fn.start, end_line=fn.end, symbol=fn.qualified,
-                    evidence=sf.snippet(fn.start),
-                ))
+        if _modifies_iterated_collection(fn.body):
+            findings.append(Finding(
+                rule="BUG.CONCURRENT_MODIFICATION", category=CAT_BUG, severity=CRITICAL,
+                message="Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+                fix="Parcourir une copie, utiliser un Iterator avec remove(), ou removeIf().",
+                file=sf.path, line=fn.start, end_line=fn.end, symbol=fn.qualified,
+                evidence=sf.snippet(fn.start),
+            ))
         # division entiere ou division par une variable sans garde
         if _is_unguarded_division(body):
             findings.append(Finding(

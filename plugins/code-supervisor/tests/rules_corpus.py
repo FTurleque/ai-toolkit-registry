@@ -51,6 +51,11 @@ def generated_files() -> dict:
         GENERATED_DIR + "/secrets.py": "\n".join([docstring] + assignments + ['AWS_DOCUMENTATION = "%s"' % aws_documentation]) + "\n",
         # En chemin de test, les secrets a format connu restent critiques (les autres sont abaisses).
         GENERATED_DIR + "/tests/test_secrets.py": "\n".join([docstring] + assignments) + "\n",
+        # Chaine de connexion factice dans un test : signalee sans bloquer.
+        GENERATED_DIR + "/src/test/java/demo/ConnectionUrlTest.java": "\n".join([
+            "package demo;", "", "class ConnectionUrlTest {", "  String fixtureUrl() {",
+            '    return "jdbc:postgresql://reader:%s@db.internal:5432/app";' % ("fixture" + "-pass"),
+            "  }", "}"]) + "\n",
     }
 
 
