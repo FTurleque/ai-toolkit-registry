@@ -8,20 +8,26 @@ fait échouer le test ; une sortie qui bouge volontairement se valide en régén
 
 ```bash
 python plugins/code-supervisor/tests/run_tests.py                # compare le moteur aux références
-python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : hook, rules ou install
+python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : manifest, hook, rules ou install
 python plugins/code-supervisor/tests/run_tests.py --update       # régénère golden/ après un changement voulu
 python plugins/code-supervisor/tests/run_tests.py --script ~/.claude/hooks/supervisor.py   # moteur installé
 ```
 
 Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux.
 
-## Trois suites
+## Quatre suites
 
 | Suite | Ce qu'elle exerce | Référence |
 |---|---|---|
+| `manifest` | la cohérence de `hooks/hooks.json` avec le README et `install.py` | aucune : assertions |
 | `hook` | le hook de bout en bout : charge utile sur stdin, sortie sur stdout, dans des dépôts git jetables | `golden/hook_scenarios.json` |
 | `rules` | toutes les règles de détection sur `corpus/` : par ligne, par bloc, par fichier, sécurité, nommage, imports, complexité et bugs par fonction, extraction des fonctions, duplication | `golden/rules.json` |
 | `install` | l'installeur `install.py` : installation, réinstallation, désinstallation, dans un dossier de configuration jetable | `golden/install_scenarios.json` |
+
+**`manifest`** : `hooks/hooks.json` déclare exactement `Stop` et `SubagentStop`, un handler `command` chacun ;
+la forme du handler (shell, ou exec si `args` est présent) est celle qu'annonce le README, qui reprend la
+commande exacte en forme shell ; le `timeout` est égal à `HOOK_TIMEOUT_SECONDS` de `install.py`. Elle porte
+sur les fichiers du dépôt, y compris avec `--script`.
 
 **`hook`** (40 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
