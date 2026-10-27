@@ -132,12 +132,16 @@ def _run_reviewer(exe: str, prompt: str, root: str, cfg) -> Tuple[Optional[str],
     env = dict(os.environ)
     env["CLAUDE_CODE_DISABLE_HOOKS"] = "1"       # le relecteur ne doit pas redeclencher le hook
     env["SUPERVISOR_ACTIVE"] = "1"
+    timeout = cfg.llm.get("timeout_seconds", 180)
     try:
         # Le prompt passe par l'entree standard : en argument, un diff de quelques dizaines de milliers
         # de caracteres depasse la limite de ligne de commande de Windows (WinError 206).
         proc = subprocess.run(cmd, input=prompt.encode("utf-8"), cwd=root,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              timeout=cfg.llm.get("timeout_seconds", 180), env=env)
+                              timeout=timeout, env=env)
+    except subprocess.TimeoutExpired:
+        # Le message de l'exception recopie la ligne de commande, prompt systeme compris : il ne dirait rien.
+        return None, "%s indisponible (delai de %s s depasse)" % (LLM_NOTE_PREFIX, timeout)
     except (OSError, subprocess.SubprocessError) as exc:
         return None, "%s indisponible (%s)" % (LLM_NOTE_PREFIX, exc)
     output = proc.stdout.decode("utf-8", "replace")
