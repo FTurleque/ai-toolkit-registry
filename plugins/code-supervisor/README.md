@@ -135,10 +135,14 @@ claude plugin uninstall code-supervisor@ai-toolkit-registry
 Rien n'est ecrit dans votre `settings.json` : les hooks sont declares par le plugin, dans
 `hooks/hooks.json`.
 
-**Prerequis** : `python` doit etre resolvable dans le PATH. Le hook est declare en forme exec
-(`args`), ce qui evite les problemes de quoting sous Windows mais interdit un repli automatique
-vers `python3`. Sur une distribution Linux ou seul `python3` existe, installer
-`python-is-python3` ou utiliser l'installation manuelle, qui detecte l'interpreteur.
+**Prerequis** : `python` doit etre resolvable dans le PATH du shell qui lance le hook. Le hook est
+declare en forme shell (`command`) : `python "${CLAUDE_PLUGIN_ROOT}/resources/supervisor.py"`.
+Claude Code passe cette chaine a `sh -c` sous Linux et macOS, a Git Bash sous Windows, ou a
+PowerShell si Git Bash est absent ; les guillemets doubles couvrent un chemin avec espaces ou
+accents dans les trois shells. La forme exec (`args`) n'est pas utilisee : la version minimale
+de Claude Code qui la prend en charge n'est pas documentee. Il n'y a pas de repli vers `python3` :
+sur une distribution Linux ou seul `python3` existe, installer `python-is-python3` ou utiliser
+l'installation manuelle, qui detecte l'interpreteur.
 
 ### Voie 2 — installation manuelle dans `~/.claude`
 
