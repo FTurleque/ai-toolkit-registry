@@ -142,13 +142,14 @@ def _base_ref(root: str, state: dict, transcript_path: str):
     return git_commit_before(root, stamp) or (EMPTY_TREE if git_head(root) else None)
 
 
-def run(project_dir: str, cfg, hints=None, base_ref=None, reviewed=None):
+def run(project_dir: str, cfg, hints=None, base_ref=None, reviewed=None, event=""):
     root = git_root(project_dir) or project_dir
     files, candidates = engine.select_files(root, cfg, touched_hint=hints, base_ref=base_ref, reviewed=reviewed)
     if not files:
         return None
     static = engine.analyze(root, files, cfg)
-    llm_findings, verdict = llm.review(root, files, static, cfg)
+    skipped = llm.skip_reason(files, cfg, event)
+    llm_findings, verdict = ([], skipped) if skipped else llm.review(root, files, static, cfg)
     findings = sort_findings(static + llm_findings)
     counts = engine.counts(findings)
     blockers = engine.blocking(findings, cfg)
@@ -361,7 +362,8 @@ def hook_main() -> int:
 
     started = time.time()
     base_ref = _base_ref(root, state, payload.get("transcript_path", ""))
-    result = run(root, cfg, touched_files(payload.get("transcript_path", "")), base_ref, state.get("reviewed"))
+    result = run(root, cfg, touched_files(payload.get("transcript_path", "")), base_ref, state.get("reviewed"),
+                 str(payload.get("hook_event_name") or ""))
     if result is None:
         return 0
 

@@ -28,7 +28,8 @@ sauf si `SUPERVISOR_LLM_IT=1` (voir plus bas) : la CI ne la lance jamais.
 | `install` | l'installeur `install.py` : installation, réinstallation, désinstallation, dans un dossier de configuration jetable | `golden/install_scenarios.json` |
 | `llm` | la couche modèle avec le vrai CLI `claude`, sur option | aucune : assertions |
 
-**`manifest`** : `hooks/hooks.json` déclare exactement `Stop` et `SubagentStop`, un handler `command` chacun ;
+**`manifest`** : `hooks/hooks.json` déclare exactement `Stop` et `SubagentStop`, un handler `command` chacun,
+dont le timeout couvre `llm.timeout_seconds` plus `time_budget_seconds` du `supervisor.config.json` livré ;
 la forme du handler (shell, ou exec si `args` est présent) est celle qu'annonce le README, qui reprend la
 commande exacte en forme shell ; le `timeout` est égal à `HOOK_TIMEOUT_SECONDS` de `install.py`. Elle porte
 sur les fichiers du dépôt, y compris avec `--script`.
@@ -42,10 +43,14 @@ de `?`, message d'erreur contenant un mot SQL, boucle qui lit une liste remplie 
 qui relance, catch vide justifié, `contains("pwd=")`, chaîne de connexion factice dans un test. Avec
 `--script`, c'est le moteur désigné qui est évalué.
 
-**`hook`** (40 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
+**`hook`** (46 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
 transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, session dont le dossier courant est un sous-dossier du dépôt (rapports, état et configuration de projet à la racine Git, état retrouvé à la passe suivante), `log_subdir` du projet et ses valeurs refusées (`..`, chemin absolu, `.git`), chemin accentué, `--check`
-avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée.
+avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée, sauf dans
+deux familles qui la confient à un faux CLI : revue en échec (session expirée), et `llm_gate_*`, où un faux
+relecteur note chaque appel. `llm_gate_*` vérifie que `llm.min_changed_lines`, `llm.code_files_only` et
+`llm.on_subagent_stop` sautent la revue quand ils le doivent, et seulement alors (`reviewer_called`), et que
+le verdict en donne la raison.
 
 **`install`** (22 entrées) : installation neuve, de projet (`--project`), réinstallation, mise à jour d'un ancien
 hook, désinstallation (après installation, sans rien installer, avec un groupe partagé avec un autre hook), et

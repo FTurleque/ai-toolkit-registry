@@ -1,4 +1,4 @@
-"""Coherence de hooks/hooks.json avec le README et l'installeur.
+"""Coherence de hooks/hooks.json avec le README, l'installeur et les delais du moteur.
 
 Pas de reference figee : chaque controle est une assertion. Une divergence entre la forme declaree du hook,
 la commande documentee et le timeout de l'installation manuelle fait echouer la suite."""
@@ -57,6 +57,19 @@ def _readme_problems(readme: str, forms: set) -> List[str]:
     return problems
 
 
+def _budget_problem(plugin_dir: str, timeout) -> List[str]:
+    """Le hook doit laisser au moteur le temps de l'analyse statique puis de la revue par modele : au-dela de son
+    timeout, Claude Code l'interrompt et la passe ne rend rien."""
+    try:
+        shipped = json.loads(_read(os.path.join(plugin_dir, "resources", "supervisor.config.json")))
+        needed = int(shipped["llm"]["timeout_seconds"]) + int(shipped["time_budget_seconds"])
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return ["resources/supervisor.config.json : delais illisibles (%s)" % exc]
+    if not isinstance(timeout, int) or timeout < needed:
+        return ["timeout du hook %r inferieur a llm.timeout_seconds + time_budget_seconds (%d s)" % (timeout, needed)]
+    return []
+
+
 def problems(plugin_dir: str) -> List[str]:
     try:
         manifest = json.loads(_read(os.path.join(plugin_dir, "hooks", "hooks.json")))
@@ -74,4 +87,6 @@ def problems(plugin_dir: str) -> List[str]:
         forms.update("exec" if "args" in h else "shell" for h in handlers)
     readme = " ".join(_read(os.path.join(plugin_dir, "README.md")).split())
     found.extend(_readme_problems(readme, forms))
+    for hook_timeout in sorted({h.get("timeout") for event in EVENTS for h in _handlers(hooks[event])}, key=str):
+        found.extend(_budget_problem(plugin_dir, hook_timeout))
     return found

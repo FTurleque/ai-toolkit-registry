@@ -106,6 +106,54 @@
   "stderr": "",
   "stdout": ""
  },
+ "llm_gate_code_files_only_code": {
+  "rc": 0,
+  "reviewer_called": true,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage."
+  }
+ },
+ "llm_gate_code_files_only_data": {
+  "rc": 0,
+  "reviewer_called": false,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage, analyse statique seule : revue LLM non demandee : aucun fichier de code (llm.code_files_only)."
+  }
+ },
+ "llm_gate_default": {
+  "rc": 0,
+  "reviewer_called": true,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage."
+  }
+ },
+ "llm_gate_min_changed_lines": {
+  "rc": 0,
+  "reviewer_called": false,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage, analyse statique seule : revue LLM non demandee : 2 ligne(s) modifiee(s), seuil 50 (llm.min_changed_lines)."
+  }
+ },
+ "llm_gate_stop_with_subagent_off": {
+  "rc": 0,
+  "reviewer_called": true,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage."
+  }
+ },
+ "llm_gate_subagent_stop_off": {
+  "rc": 0,
+  "reviewer_called": false,
+  "stderr": "",
+  "stdout": {
+   "systemMessage": "Superviseur de code : 1 fichier(s) relu(s), rien a signaler — pas de blocage, analyse statique seule : revue LLM non demandee sur SubagentStop (llm.on_subagent_stop)."
+  }
+ },
  "llm_review_failed": {
   "rc": 0,
   "stderr": "",

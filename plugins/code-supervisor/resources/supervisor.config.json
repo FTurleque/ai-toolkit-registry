@@ -24,11 +24,15 @@
     "duplication_corpus_files": 400
   },
 
+  "_llm_doc": "Revue par modele (claude -p). timeout_seconds plus time_budget_seconds doit rester sous le timeout du hook (300 s). Une revue coute presque autant pour 3 lignes que pour 300 : min_changed_lines (0 = toujours), code_files_only (true = pas d'appel si aucun fichier n'est dans un langage a analyse structurelle, ex. JSON ou YAML seuls) et on_subagent_stop (false = analyse statique seule a la fin d'un sous-agent) evitent des appels. Quand la revue est sautee, le verdict le dit.",
   "llm": {
     "enabled": true,
     "cli": "claude",
     "model": "sonnet",
     "timeout_seconds": 180,
+    "min_changed_lines": 0,
+    "code_files_only": false,
+    "on_subagent_stop": true,
     "max_diff_chars": 60000,
     "max_static_findings_in_prompt": 25,
     "convention_files": ["CLAUDE.md", "CONTRIBUTING.md", "AGENTS.md", ".editorconfig"]

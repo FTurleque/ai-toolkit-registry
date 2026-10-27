@@ -219,7 +219,11 @@ sous-dossier lit la meme configuration, ecrit dans le meme dossier de rapport et
 | `never_block_categories` | categories qui n'arretent jamais l'agent, ex. `["nommage","convention"]` |
 | `max_block_rounds` | nombre maximal de renvois pour un **meme** lot de problemes (3). Au-dela, avertissement sans blocage |
 | `thresholds` | tous les seuils : complexite, longueur, parametres, imbrication, taille du bloc duplique |
-| `llm.enabled`, `llm.model` | couche modele : la couper, ou changer de modele |
+| `llm.enabled`, `llm.model` | couche modele : la couper, ou changer de modele (`sonnet` par defaut) |
+| `llm.timeout_seconds` | delai de la revue par modele (180 s). Avec `time_budget_seconds` (45 s), il doit rester sous le timeout du hook, 300 s : au-dela, Claude Code interrompt le hook et la passe ne rend rien. Un depassement est annonce dans le verdict (« delai de N s depasse ») |
+| `llm.min_changed_lines` | pas de revue par modele sous ce nombre de lignes modifiees, un fichier nouveau comptant en entier. `0` par defaut : revue a chaque passe |
+| `llm.code_files_only` | `true` : pas de revue par modele quand aucun fichier relu n'est dans un langage a analyse structurelle (un diff de JSON, YAML ou SQL seul). `false` par defaut |
+| `llm.on_subagent_stop` | `false` : analyse statique seule a la fin d'un sous-agent (`SubagentStop`), revue complete a la fin de l'agent principal. `true` par defaut |
 | `external_tools` | outils a appeler (ruff, eslint, checkstyle). **Vide par defaut** : rien ne s'execute sans declaration explicite, aucun build ni CI n'est declenche par surprise. **Honore uniquement depuis la configuration utilisateur ou celle du moteur, jamais depuis un projet.** Des exemples prets a copier sont dans le fichier |
 | `quiet_paths` | chemins ou le superviseur se tait |
 | `log_subdir` | sous-dossier des rapports et de l'etat, relatif a la racine Git (`docs/rapport-supervisor` par defaut). **Admis dans la configuration du projet**, confine sous sa racine : un chemin absolu, avec lecteur, `..`, `.git` ou caractere de motif, ou qui sort de la racine par un lien symbolique, est refuse avec un avertissement et le defaut s'applique ; si le defaut sort lui-meme de la racine par un lien, les rapports vont dans `<temp>/code-supervisor/<empreinte de la racine>`. Les rapports y sont exclus de la relecture |
@@ -228,6 +232,28 @@ sous-dossier lit la meme configuration, ecrit dans le meme dossier de rapport et
 Variables d'environnement : `SUPERVISOR_NO_LLM=1` coupe la couche modele pour une execution,
 `SUPERVISOR_LOG_DIR` deplace les rapports, `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` releve le plafond de
 blocages de Claude Code (8 par defaut).
+
+Quand l'un de ces trois reglages saute la revue, le verdict le dit, par exemple « analyse statique seule :
+revue LLM non demandee sur SubagentStop (llm.on_subagent_stop) ».
+
+### Ce que coute une passe
+
+Le hook ne fait rien tant qu'aucun fichier n'a change depuis la passe precedente. Des qu'il en trouve, il fait
+l'analyse statique, puis une revue par `claude -p`, a chaque `Stop` comme a chaque `SubagentStop`. Mesures :
+
+| Mesure | Valeur |
+|---|---|
+| Duree d'une passe, sur 526 passes de trois projets | mediane 20 s, 9 sur 10 sous 26 s |
+| Cout d'une revue avec `haiku`, diff de 8 lignes (suite `llm` des tests) | 0,06 a 0,07 USD, 126 000 a 170 000 jetons en entree |
+| Passes sans fichier dans un langage a analyse structurelle (JSON, YAML, SQL seuls) | 19 a 27 % selon le projet |
+
+Le volume en entree vient du contexte de `claude -p` et des fichiers que le relecteur lit, pas du diff : une
+revue coute a peu pres autant pour 3 lignes que pour 300. Le cout avec `sonnet`, le modele par defaut, n'a pas
+ete mesure ; il est plus eleve par jeton. Pour reduire le nombre d'appels, dans `~/.claude/supervisor.config.json` :
+
+```json
+{ "llm": { "code_files_only": true, "on_subagent_stop": false } }
+```
 
 ---
 

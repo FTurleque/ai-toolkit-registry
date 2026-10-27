@@ -136,6 +136,75 @@ def _failing_reviewer(sandbox: Sandbox) -> str:
     return launcher
 
 
+def _recording_reviewer(sandbox: Sandbox) -> str:
+    """Faux CLI de revue qui repond « rien a signaler » et note chaque appel dans `reviewer_calls.log`."""
+    script = os.path.join(sandbox.work, "recording_claude.py")
+    log = os.path.join(sandbox.work, "reviewer_calls.log")
+    Sandbox.write(sandbox.work, "recording_claude.py",
+                  "import json, sys\nsys.stdin.read()\n"
+                  "open(%r, 'a').write('appel\\n')\n"
+                  "print(json.dumps({'result': json.dumps({'findings': [], 'verdict': 'Rien a signaler.'})}))\n" % log)
+    launcher = os.path.join(sandbox.work, "recording_claude.cmd" if os.name == "nt" else "recording_claude")
+    Sandbox.write(sandbox.work, os.path.basename(launcher),
+                  ("@echo off\r\n\"%s\" \"%s\"\r\n" if os.name == "nt" else "#!/bin/sh\nexec \"%s\" \"%s\"\n")
+                  % (sys.executable, script))
+    os.chmod(launcher, 0o755)
+    return launcher
+
+
+def _reviewer_calls(sandbox: Sandbox) -> int:
+    try:
+        with open(os.path.join(sandbox.work, "reviewer_calls.log"), encoding="utf-8") as fh:
+            return len(fh.read().splitlines())
+    except OSError:
+        return 0
+
+
+def _llm_failure_scenario(sandbox: Sandbox, results: dict) -> None:
+    """Revue par modele en echec : le rapport le dit au lieu d'annoncer un verdict complet."""
+    reviewed = sandbox.make_repo("reviewed", {"b.py": CLEAN})
+    Sandbox.write(sandbox.config_dir, "supervisor.config.json",
+                  json.dumps({"llm": {"enabled": True, "cli": _failing_reviewer(sandbox), "timeout_seconds": 30}}))
+    no_llm = {key: value for key, value in sandbox.env.items() if key != "SUPERVISOR_NO_LLM"}
+    sandbox.env, previous_env = no_llm, sandbox.env
+    try:
+        results["llm_review_failed"] = sandbox.run(reviewed, {"cwd": reviewed, "session_id": "l1"})
+    finally:
+        sandbox.env = previous_env
+        os.remove(os.path.join(sandbox.config_dir, "supervisor.config.json"))
+
+
+# Reglages qui evitent l'appel au modele : (scenario, reglages llm, fichiers modifies, evenement).
+LLM_GATE_SCENARIOS = [
+    ("llm_gate_default", {}, {"b.py": CLEAN}, "Stop"),
+    ("llm_gate_min_changed_lines", {"min_changed_lines": 50}, {"b.py": CLEAN}, "Stop"),
+    ("llm_gate_code_files_only_data", {"code_files_only": True}, {"deploy.yaml": "name: demo\nreplicas: 2\n"}, "Stop"),
+    ("llm_gate_code_files_only_code", {"code_files_only": True}, {"b.py": CLEAN}, "Stop"),
+    ("llm_gate_subagent_stop_off", {"on_subagent_stop": False}, {"b.py": CLEAN}, "SubagentStop"),
+    ("llm_gate_stop_with_subagent_off", {"on_subagent_stop": False}, {"b.py": CLEAN}, "Stop"),
+]
+
+
+def _llm_gate_scenarios(sandbox: Sandbox, results: dict) -> None:
+    """Chaque reglage saute la revue quand il le doit, et seulement alors ; le verdict dit pourquoi."""
+    launcher = _recording_reviewer(sandbox)
+    user_config = os.path.join(sandbox.config_dir, "supervisor.config.json")
+    no_llm = {key: value for key, value in sandbox.env.items() if key != "SUPERVISOR_NO_LLM"}
+    sandbox.env, previous_env = no_llm, sandbox.env
+    try:
+        for name, settings, files, event in LLM_GATE_SCENARIOS:
+            repo = sandbox.make_repo(name, files)
+            llm_settings = dict({"enabled": True, "cli": launcher, "timeout_seconds": 30}, **settings)
+            Sandbox.write(sandbox.config_dir, "supervisor.config.json", json.dumps({"llm": llm_settings}))
+            before = _reviewer_calls(sandbox)
+            outcome = sandbox.run(repo, {"cwd": repo, "session_id": name, "hook_event_name": event})
+            results[name] = dict(outcome, reviewer_called=_reviewer_calls(sandbox) > before)
+    finally:
+        sandbox.env = previous_env
+        if os.path.exists(user_config):
+            os.remove(user_config)
+
+
 def _states(repo: str, subdir: str = os.path.join("docs", "rapport-supervisor")) -> dict:
     """Etat anti-boucle persiste, sans la duree ni les empreintes (qui dependent du hachage)."""
     folder = os.path.join(repo, subdir)
@@ -253,17 +322,7 @@ def run(script: str) -> dict:
         _commit(sandbox, stepwise, "second")
         results["scope_pass_3_commit_since"] = sandbox.run(stepwise, {"cwd": stepwise, "session_id": "k3"})
 
-        # Revue par modele en echec : le rapport le dit au lieu d'annoncer un verdict complet.
-        reviewed = sandbox.make_repo("reviewed", {"b.py": CLEAN})
-        Sandbox.write(sandbox.config_dir, "supervisor.config.json",
-                      json.dumps({"llm": {"enabled": True, "cli": _failing_reviewer(sandbox), "timeout_seconds": 30}}))
-        no_llm = {key: value for key, value in sandbox.env.items() if key != "SUPERVISOR_NO_LLM"}
-        sandbox.env, previous_env = no_llm, sandbox.env
-        try:
-            results["llm_review_failed"] = sandbox.run(reviewed, {"cwd": reviewed, "session_id": "l1"})
-        finally:
-            sandbox.env = previous_env
-            os.remove(os.path.join(sandbox.config_dir, "supervisor.config.json"))
+        _llm_failure_scenario(sandbox, results)
 
         logs = os.path.join(sandbox.work, "logs")
         os.makedirs(logs)
@@ -279,6 +338,7 @@ def run(script: str) -> dict:
 
         _nested_scenarios(sandbox, results)
         _cli_scenarios(sandbox, results, bad, clean)
+        _llm_gate_scenarios(sandbox, results)     # apres l'inventaire des dossiers d'etat de _nested_scenarios
         results["states"] = _states(bad)
     finally:
         sandbox.close()
