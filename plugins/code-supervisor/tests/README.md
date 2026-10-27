@@ -1,25 +1,27 @@
 # Tests de caractérisation du superviseur de code
 
-Filet de sécurité pour les refactorisations du moteur. Ces tests ne disent pas que le superviseur a
-« raison » : ils disent que **sa sortie n'a pas changé**. Une sortie qui bouge sans qu'on l'ait voulu
-fait échouer le test ; une sortie qui bouge volontairement se valide en régénérant la référence.
+Filet de sécurité pour les refactorisations du moteur. Les suites à référence ne disent pas que le
+superviseur a « raison » : elles disent que **sa sortie n'a pas changé**. Une sortie qui bouge sans qu'on
+l'ait voulu fait échouer le test ; une sortie qui bouge volontairement se valide en régénérant la référence.
+La suite `precision` affirme, elle, un résultat attendu : aucun CRITICAL sur du code propre.
 
 ## Lancer
 
 ```bash
 python plugins/code-supervisor/tests/run_tests.py                # compare le moteur aux références
-python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : manifest, hook, rules ou install
+python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : manifest, precision, hook, rules ou install
 python plugins/code-supervisor/tests/run_tests.py --update       # régénère golden/ après un changement voulu
 python plugins/code-supervisor/tests/run_tests.py --script ~/.claude/hooks/supervisor.py   # moteur installé
 ```
 
 Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux.
 
-## Quatre suites
+## Cinq suites
 
 | Suite | Ce qu'elle exerce | Référence |
 |---|---|---|
 | `manifest` | la cohérence de `hooks/hooks.json` avec le README et `install.py` | aucune : assertions |
+| `precision` | le moteur complet sur `precision/`, du code propre : zéro CRITICAL attendu | aucune : assertions |
 | `hook` | le hook de bout en bout : charge utile sur stdin, sortie sur stdout, dans des dépôts git jetables | `golden/hook_scenarios.json` |
 | `rules` | toutes les règles de détection sur `corpus/` : par ligne, par bloc, par fichier, sécurité, nommage, imports, complexité et bugs par fonction, extraction des fonctions, duplication | `golden/rules.json` |
 | `install` | l'installeur `install.py` : installation, réinstallation, désinstallation, dans un dossier de configuration jetable | `golden/install_scenarios.json` |
@@ -28,6 +30,15 @@ Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux.
 la forme du handler (shell, ou exec si `args` est présent) est celle qu'annonce le README, qui reprend la
 commande exacte en forme shell ; le `timeout` est égal à `HOOK_TIMEOUT_SECONDS` de `install.py`. Elle porte
 sur les fichiers du dépôt, y compris avec `--script`.
+
+**`precision`** : `engine.analyze` relit chaque fichier de `precision/` comme nouveau (toutes ses lignes
+comptent), avec les réglages par défaut et sans outil externe, et la suite échoue au premier CRITICAL, en
+nommant le fichier, la ligne et la règle. MAJOR et MINOR ne sont pas évalués. Le code y est propre et
+réaliste (Java, Kotlin, Python, TypeScript, Go, C#) et reprend des motifs légitimes qu'une règle a déjà
+pris pour des défauts bloquants : requête paramétrée assemblée de littéraux, liste `IN (?, ?)` construite
+de `?`, message d'erreur contenant un mot SQL, boucle qui lit une liste remplie avant elle, catch d'une ligne
+qui relance, catch vide justifié, `contains("pwd=")`, chaîne de connexion factice dans un test. Avec
+`--script`, c'est le moteur désigné qui est évalué.
 
 **`hook`** (40 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
@@ -92,6 +103,11 @@ chaque modification du corpus ferait bloquer l'agent.
 **Ajouter un cas** : déposer un fichier dans `corpus/`, lancer `--update`, relire le diff de `golden/` : il
 doit montrer exactement les constats que l'on attend, et rien d'autre.
 
+**Corriger un faux positif** : un cas minimal dans `corpus/` d'abord (code inventé qui reproduit le motif, jamais
+le code d'origine), puis la correction de la règle, puis `--update` ; le diff de `golden/` ne bouge que sur ce
+motif. Si le motif est légitime et courant, l'ajouter aussi à `precision/`. `precision/` est silencieux pour le
+superviseur, comme `corpus/`.
+
 ## Portabilité des références
 
 Les sorties sont normalisées avant comparaison pour être identiques d'une machine à l'autre : dossier de
@@ -122,6 +138,7 @@ commentaire de `catch` passait inaperçue tant qu'aucun commentaire ne faisait 2
 - `BUG.DIV_ZERO` ne regarde que les diviseurs nommés `size()`, `length`, `count`, `total` ou `n`, nus ou portés
   par un objet, et reconnaît comme garde un test de valeur sur le diviseur lui-même (`if n:`, `if (!xs.length)`).
   Un test sur une autre variable, ou une garde dans une autre fonction, ne compte pas.
-- La couverture porte sur le déclenchement des règles et la stabilité de leur sortie, pas sur leur
-  justesse : un faux positif figé dans la référence n'est pas détecté.
+- La suite `rules` porte sur le déclenchement des règles et la stabilité de leur sortie, pas sur leur
+  justesse : un faux positif figé dans la référence n'y est pas détecté. `precision` couvre les CRITICAL, et
+  seulement sur les motifs que son corpus contient.
 - La revue par modèle (`llm.py`) n'est pas exercée : elle suppose le CLI `claude` authentifié.
