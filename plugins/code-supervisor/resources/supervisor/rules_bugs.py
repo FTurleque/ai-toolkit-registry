@@ -197,27 +197,35 @@ def _is_silent_exit(sf: SourceFile, i: int, closing: int, body) -> bool:
     return not re.search(r"\breturn\s+\"", " ".join(sf.lines[i:closing + 1]))
 
 
+# Catch vide : (gravite, message, correctif) selon le commentaire qui l'accompagne. Un bloc vide mais commente
+# est une decision assumee : signale sans bloquer ; un commentaire trop court pour justifier quoi que ce soit
+# reste signale, sans bloquer non plus.
+_SWALLOWED = {
+    "justifie": (
+        MINOR, "Exception capturee et ignoree, avec justification en commentaire.",
+        "Verifier que l'absence de journalisation est toujours justifiee."),
+    "commentaire_court": (
+        MAJOR, "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+        "Dire en une phrase pourquoi l'erreur peut etre ignoree, ou la journaliser avec son contexte."),
+    "silencieux": (
+        CRITICAL, "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+        "Journaliser l'exception avec son contexte, ou la propager ; un bloc catch vide n'est acceptable "
+        "qu'avec un commentaire expliquant pourquoi l'erreur peut etre ignoree."),
+}
+
+
+def _swallowed_kind(comment: str) -> str:
+    if len(comment) >= _DOCUMENTED_MIN_CHARS:
+        return "justifie"
+    return "commentaire_court" if comment else "silencieux"
+
+
 def _catch_findings(sf: SourceFile, clean, i: int, match) -> List[Finding]:
     body, closing = _brace_body(clean, i, match.end(0) - 1)
     if _is_empty_body(body):
-        # Un bloc vide mais commente est une decision assumee : on signale sans bloquer.
-        # Un commentaire trop court pour justifier quoi que ce soit reste signale, sans bloquer non plus.
-        comment = _comment_in(sf, i + 1, closing + 1)
-        documented = len(comment) >= _DOCUMENTED_MIN_CHARS
-        noted = bool(comment) and not documented
+        severity, message, fix = _SWALLOWED[_swallowed_kind(_comment_in(sf, i + 1, closing + 1))]
         return [Finding(
-            rule="BUG.CATCH_SWALLOWED", category=CAT_BUG,
-            severity=MINOR if documented else MAJOR if noted else CRITICAL,
-            message=("Exception capturee et ignoree, avec justification en commentaire."
-                     if documented else
-                     "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix."
-                     if noted else
-                     "Exception capturee puis ignoree : l'erreur disparait sans trace."),
-            fix=("Verifier que l'absence de journalisation est toujours justifiee."
-                 if documented else
-                 "Dire en une phrase pourquoi l'erreur peut etre ignoree, ou la journaliser avec son contexte."
-                 if noted else
-                 "Journaliser l'exception avec son contexte, ou la propager ; un bloc catch vide n'est acceptable qu'avec un commentaire expliquant pourquoi l'erreur peut etre ignoree."),
+            rule="BUG.CATCH_SWALLOWED", category=CAT_BUG, severity=severity, message=message, fix=fix,
             file=sf.path, line=i + 1, end_line=closing + 1,
             evidence=sf.snippet(i + 1), symbol=match.group(1).strip()[:60],
         )]

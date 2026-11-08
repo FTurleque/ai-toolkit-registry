@@ -24,11 +24,7 @@ export class CatalogClient {
   }
 
   async products(ids: string[]): Promise<Product[]> {
-    const found: Product[] = [];
-    for (const id of ids) {
-      found.push(await this.product(id));
-    }
-    return found;
+    return Promise.all(ids.map((id) => this.product(id)));
   }
 
   averagePrice(products: Product[]): number {

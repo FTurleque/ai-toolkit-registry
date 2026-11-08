@@ -14,6 +14,12 @@ PLACEHOLDER = re.compile(
     r"config\.|settings\.|secret_name|redacted|\*\*\*|null|none|empty)"
 )
 
+# Mots qui font d'un litteral un fragment de requete SQL.
+_SQL_WORDS = r"(?:select\s|insert\s+into|update\s|delete\s+from|where\s|values\s*\()"
+_SQL_ASSEMBLED_MESSAGE = "Requete SQL assemblee par concatenation de chaines : injection SQL possible."
+_SQL_ASSEMBLED_FIX = ("Construire la requete avec des parametres lies (PreparedStatement, parametres nommes) "
+                      "et ne jamais concatener une valeur dans le texte SQL.")
+
 # Chaque regle : (id, langs|None, regex, severite, message, correctif)
 PATTERNS = [
     # ---------------------------------------------------------------- secrets
@@ -45,10 +51,12 @@ PATTERNS = [
         r"prepareStatement|rawQuery|query|exec)\s*\(\s*(?:\"[^\"]*\"|'[^']*')\s*\+"), CRITICAL,
      "Requete SQL construite par concatenation de chaines : injection SQL possible.",
      "Utiliser une requete parametree (PreparedStatement avec ?, parametres nommes JPA, bind variables) au lieu de concatener les valeurs."),
-    ("SEC.SQL_CONCAT", None, re.compile(
-        r"(?i)([\"'])(?:(?!\1).)*?\b(?:select\s|insert\s+into|update\s|delete\s+from|where\s|values\s*\()(?:(?!\1).)*\1\s*\+"), MAJOR,
-     "Requete SQL assemblee par concatenation de chaines : injection SQL possible.",
-     "Construire la requete avec des parametres lies (PreparedStatement, parametres nommes) et ne jamais concatener une valeur dans le texte SQL."),
+    # Litteral qui contient un mot SQL, suivi d'une concatenation : une entree par type de guillemet, l'autre type
+    # etant un caractere ordinaire du litteral.
+    ("SEC.SQL_CONCAT", None, re.compile(r"(?i)\"[^\"]*?\b" + _SQL_WORDS + r"[^\"]*\"\s*\+"), MAJOR,
+     _SQL_ASSEMBLED_MESSAGE, _SQL_ASSEMBLED_FIX),
+    ("SEC.SQL_CONCAT", None, re.compile(r"(?i)'[^']*?\b" + _SQL_WORDS + r"[^']*'\s*\+"), MAJOR,
+     _SQL_ASSEMBLED_MESSAGE, _SQL_ASSEMBLED_FIX),
     ("SEC.SQL_FSTRING", ("python",), re.compile(
         r"(?i)(?:execute|executemany)\s*\(\s*f[\"']|(?:execute|executemany)\s*\(\s*[\"'][^\"']*%s[^\"']*[\"']\s*%"), CRITICAL,
      "Requete SQL interpolee (f-string ou %) : injection SQL possible.",
