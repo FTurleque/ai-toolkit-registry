@@ -39,6 +39,16 @@ public final class CartService {
         return sum;
     }
 
+    public boolean removeFirst(List<CartLine> lines, String sku) {
+        for (CartLine line : lines) {
+            if (line.sku().equals(sku)) {
+                lines.remove(line);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void dropEmptyLines(List<CartLine> lines) {
         Iterator<CartLine> cursor = lines.iterator();
         while (cursor.hasNext()) {

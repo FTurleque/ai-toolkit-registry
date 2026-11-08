@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 class LoopFilling {
   int fillThenRead(int count) {
@@ -40,6 +41,27 @@ class LoopFilling {
     for (String name : names)
     {
       names.remove(name);
+    }
+  }
+
+  void removeThenStop(List<String> names, String target) {
+    for (String name : names) {
+      if (name.equals(target)) {
+        names.remove(name);
+        break;
+      }
+    }
+  }
+
+  void growEntries(Map<String, Integer> counts) {
+    for (final Map.Entry<String, Integer> entry : counts.entrySet()) {
+      counts.put(entry.getKey() + "!", entry.getValue());
+    }
+  }
+
+  void growAll(List<String> names, List<String> extra) {
+    for (String name : names) {
+      names.addAll(extra);
     }
   }
 }

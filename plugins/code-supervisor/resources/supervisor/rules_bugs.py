@@ -344,27 +344,45 @@ def _is_empty_body(body) -> bool:
     return all((not b) or b in ("{", "}") for b in body)
 
 
-_FOR_EACH = re.compile(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+\w+\s*:\s*(\w+)\s*\)")
+_FOREACH = re.compile(
+    r"\bfor\s*\(\s*(?:final\s+)?\w[\w<>,.?\s\[\]]*\s+\w+\s*:\s*(?P<coll>\w+)"
+    r"(?:\s*\.\s*(?:entrySet|keySet|values)\s*\(\s*\))?\s*\)")
+_MODIFIERS = r"(?:add|addAll|remove|clear|put|putAll)"
 
 
-def _loop_body(lines, i: int, header_end: int) -> str:
-    """Corps d'une boucle dont l'en-tete se termine en `header_end` sur la ligne `i` : bloc entre accolades,
-    ouvert sur la meme ligne ou la suivante (style Allman), ou instruction unique sur la meme ligne ou la suivante."""
-    rest = lines[i][header_end:]
-    if not rest.strip() and i + 1 < len(lines):
-        i, rest, header_end = i + 1, lines[i + 1], 0
-    if rest.lstrip().startswith("{"):
-        body, _ = _brace_body(lines, i, header_end + rest.index("{"))
-        return "\n".join(body)
-    return rest
+def _loop_body(text: str, pos: int) -> str:
+    """Corps de la boucle dont la parenthese fermante se termine en `pos` : le bloc entre accolades,
+    ou l'instruction unique quand il n'y a pas d'accolades."""
+    i = pos
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i < len(text) and text[i] == "{":
+        depth = 0
+        for j in range(i, len(text)):
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[i + 1:j]
+        return text[i + 1:]
+    end = text.find(";", i)
+    return text[i:end + 1 if end >= 0 else len(text)]
 
 
-def _modifies_iterated_collection(lines) -> bool:
-    """Vrai si une boucle `for (x : coll)` modifie `coll` dans son propre corps."""
-    for i, line in enumerate(lines):
-        for m in _FOR_EACH.finditer(line):
-            mutation = r"\b%s\.(?:add|remove|clear|put)\s*\(" % re.escape(m.group(1))
-            if re.search(mutation, _loop_body(lines, i, m.end())):
+def _modifies_iterated_collection(body: str) -> bool:
+    """Vrai si un for-each modifie, dans son propre corps, la collection qu'il parcourt.
+
+    Chaque boucle est examinee, pas seulement la premiere. Une modification faite avant ou apres la boucle
+    ne compte pas, et celle qui est immediatement suivie de `break` ou de `return` ne relance pas
+    l'iterateur, donc ne leve pas d'exception."""
+    for loop in _FOREACH.finditer(body):
+        inner = _loop_body(body, loop.end())
+        pattern = r"\b%s\s*\.\s*%s\s*\(" % (re.escape(loop.group("coll")), _MODIFIERS)
+        for mod in re.finditer(pattern, inner):
+            statement_end = inner.find(";", mod.end())
+            following = inner[statement_end + 1:].lstrip() if statement_end >= 0 else ""
+            if not following.startswith(("break", "return")):
                 return True
     return False
 
@@ -400,7 +418,7 @@ def check_function_bugs(sf: SourceFile, functions: List[Function]) -> List[Findi
                 evidence=sf.snippet(fn.start),
             ))
         # boucle qui modifie la collection iteree
-        if _modifies_iterated_collection(fn.body):
+        if _modifies_iterated_collection(body):
             findings.append(Finding(
                 rule="BUG.CONCURRENT_MODIFICATION", category=CAT_BUG, severity=CRITICAL,
                 message="Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",

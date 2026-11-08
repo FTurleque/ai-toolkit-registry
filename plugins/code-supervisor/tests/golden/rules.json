@@ -8148,8 +8148,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    26,
-    32,
+    27,
+    33,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropWhileIterating(List<String> names) {",
@@ -8159,8 +8159,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    34,
-    36,
+    35,
+    37,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void growOnOneLine(List<String> names) {",
@@ -8170,20 +8170,42 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    38,
-    44,
+    39,
+    45,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropAllman(List<String> names)",
     "LoopFilling.dropAllman"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    56,
+    60,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growEntries(Map<String, Integer> counts) {",
+    "LoopFilling.growEntries"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    62,
+    66,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growAll(List<String> names, List<String> extra) {",
+    "LoopFilling.growAll"
    ]
   ],
   "function_quality": [],
   "functions": [
    [
     "LoopFilling.fillThenRead",
-    5,
-    15,
+    6,
+    16,
     [
      "int count"
     ],
@@ -8195,8 +8217,8 @@
    ],
    [
     "LoopFilling.copyThenClear",
-    17,
-    24,
+    18,
+    25,
     [
      "List<String> names"
     ],
@@ -8208,8 +8230,8 @@
    ],
    [
     "LoopFilling.dropWhileIterating",
-    26,
-    32,
+    27,
+    33,
     [
      "List<String> names"
     ],
@@ -8221,8 +8243,8 @@
    ],
    [
     "LoopFilling.growOnOneLine",
-    34,
-    36,
+    35,
+    37,
     [
      "List<String> names"
     ],
@@ -8234,8 +8256,8 @@
    ],
    [
     "LoopFilling.dropAllman",
-    38,
-    44,
+    39,
+    45,
     [
      "List<String> names"
     ],
@@ -8244,6 +8266,47 @@
     "",
     6,
     "4626c233"
+   ],
+   [
+    "LoopFilling.removeThenStop",
+    47,
+    54,
+    [
+     "List<String> names",
+     "String target"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    7,
+    "6817a02d"
+   ],
+   [
+    "LoopFilling.growEntries",
+    56,
+    60,
+    [
+     "Map<String, Integer> counts"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    4,
+    "518eaa82"
+   ],
+   [
+    "LoopFilling.growAll",
+    62,
+    66,
+    [
+     "List<String> names",
+     "List<String> extra"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    4,
+    "3c209891"
    ]
   ],
   "imports": [],
@@ -13994,8 +14057,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    26,
-    32,
+    27,
+    33,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropWhileIterating(List<String> names) {",
@@ -14005,8 +14068,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    34,
-    36,
+    35,
+    37,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void growOnOneLine(List<String> names) {",
@@ -14016,12 +14079,34 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    38,
-    44,
+    39,
+    45,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropAllman(List<String> names)",
     "LoopFilling.dropAllman"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    56,
+    60,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growEntries(Map<String, Integer> counts) {",
+    "LoopFilling.growEntries"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    62,
+    66,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growAll(List<String> names, List<String> extra) {",
+    "LoopFilling.growAll"
    ]
   ],
   "function_quality": [
@@ -14029,8 +14114,8 @@
     "CPX.CYCLOMATIC",
     "MINOR",
     "complexite",
-    5,
-    15,
+    6,
+    16,
     "LoopFilling.fillThenRead a une complexite cyclomatique de 3 (seuil souhaite 2).",
     "3fbcf346",
     "int fillThenRead(int count) {",
@@ -14040,8 +14125,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    5,
-    15,
+    6,
+    16,
     "LoopFilling.fillThenRead fait 10 lignes (seuil souhaite 5).",
     "e293d83e",
     "int fillThenRead(int count) {",
@@ -14051,8 +14136,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    17,
-    24,
+    18,
+    25,
     "LoopFilling.copyThenClear fait 7 lignes (seuil souhaite 5).",
     "e293d83e",
     "List<String> copyThenClear(List<String> names) {",
@@ -14062,8 +14147,8 @@
     "CPX.CYCLOMATIC",
     "MINOR",
     "complexite",
-    26,
-    32,
+    27,
+    33,
     "LoopFilling.dropWhileIterating a une complexite cyclomatique de 3 (seuil souhaite 2).",
     "3fbcf346",
     "void dropWhileIterating(List<String> names) {",
@@ -14073,8 +14158,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    26,
-    32,
+    27,
+    33,
     "LoopFilling.dropWhileIterating fait 6 lignes (seuil souhaite 5).",
     "e293d83e",
     "void dropWhileIterating(List<String> names) {",
@@ -14084,19 +14169,41 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    38,
-    44,
+    39,
+    45,
     "LoopFilling.dropAllman fait 6 lignes (seuil souhaite 5).",
     "e293d83e",
     "void dropAllman(List<String> names)",
     "LoopFilling.dropAllman"
+   ],
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    47,
+    54,
+    "LoopFilling.removeThenStop a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "void removeThenStop(List<String> names, String target) {",
+    "LoopFilling.removeThenStop"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    47,
+    54,
+    "LoopFilling.removeThenStop fait 7 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void removeThenStop(List<String> names, String target) {",
+    "LoopFilling.removeThenStop"
    ]
   ],
   "functions": [
    [
     "LoopFilling.fillThenRead",
-    5,
-    15,
+    6,
+    16,
     [
      "int count"
     ],
@@ -14108,8 +14215,8 @@
    ],
    [
     "LoopFilling.copyThenClear",
-    17,
-    24,
+    18,
+    25,
     [
      "List<String> names"
     ],
@@ -14121,8 +14228,8 @@
    ],
    [
     "LoopFilling.dropWhileIterating",
-    26,
-    32,
+    27,
+    33,
     [
      "List<String> names"
     ],
@@ -14134,8 +14241,8 @@
    ],
    [
     "LoopFilling.growOnOneLine",
-    34,
-    36,
+    35,
+    37,
     [
      "List<String> names"
     ],
@@ -14147,8 +14254,8 @@
    ],
    [
     "LoopFilling.dropAllman",
-    38,
-    44,
+    39,
+    45,
     [
      "List<String> names"
     ],
@@ -14157,6 +14264,47 @@
     "",
     6,
     "4626c233"
+   ],
+   [
+    "LoopFilling.removeThenStop",
+    47,
+    54,
+    [
+     "List<String> names",
+     "String target"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    7,
+    "6817a02d"
+   ],
+   [
+    "LoopFilling.growEntries",
+    56,
+    60,
+    [
+     "Map<String, Integer> counts"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    4,
+    "518eaa82"
+   ],
+   [
+    "LoopFilling.growAll",
+    62,
+    66,
+    [
+     "List<String> names",
+     "List<String> extra"
+    ],
+    "LoopFilling",
+    "void",
+    "",
+    4,
+    "3c209891"
    ]
   ],
   "imports": [],
@@ -19774,8 +19922,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    26,
-    32,
+    27,
+    33,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropWhileIterating(List<String> names) {",
@@ -19785,8 +19933,8 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    34,
-    36,
+    35,
+    37,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void growOnOneLine(List<String> names) {",
@@ -19796,12 +19944,34 @@
     "BUG.CONCURRENT_MODIFICATION",
     "CRITICAL",
     "bug",
-    38,
-    44,
+    39,
+    45,
     "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
     "6c02d291",
     "void dropAllman(List<String> names)",
     "LoopFilling.dropAllman"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    56,
+    60,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growEntries(Map<String, Integer> counts) {",
+    "LoopFilling.growEntries"
+   ],
+   [
+    "BUG.CONCURRENT_MODIFICATION",
+    "CRITICAL",
+    "bug",
+    62,
+    66,
+    "Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+    "6c02d291",
+    "void growAll(List<String> names, List<String> extra) {",
+    "LoopFilling.growAll"
    ]
   ],
   "function_quality": [
@@ -19809,8 +19979,8 @@
     "CPX.CYCLOMATIC",
     "MINOR",
     "complexite",
-    5,
-    15,
+    6,
+    16,
     "LoopFilling.fillThenRead a une complexite cyclomatique de 3 (seuil souhaite 2).",
     "3fbcf346",
     "int fillThenRead(int count) {",
@@ -19820,8 +19990,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    5,
-    15,
+    6,
+    16,
     "LoopFilling.fillThenRead fait 10 lignes (seuil souhaite 5).",
     "e293d83e",
     "int fillThenRead(int count) {",
@@ -19831,8 +20001,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    17,
-    24,
+    18,
+    25,
     "LoopFilling.copyThenClear fait 7 lignes (seuil souhaite 5).",
     "e293d83e",
     "List<String> copyThenClear(List<String> names) {",
@@ -19842,8 +20012,8 @@
     "CPX.CYCLOMATIC",
     "MINOR",
     "complexite",
-    26,
-    32,
+    27,
+    33,
     "LoopFilling.dropWhileIterating a une complexite cyclomatique de 3 (seuil souhaite 2).",
     "3fbcf346",
     "void dropWhileIterating(List<String> names) {",
@@ -19853,8 +20023,8 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    26,
-    32,
+    27,
+    33,
     "LoopFilling.dropWhileIterating fait 6 lignes (seuil souhaite 5).",
     "e293d83e",
     "void dropWhileIterating(List<String> names) {",
@@ -19864,12 +20034,34 @@
     "CPX.FUNCTION_SIZE",
     "MINOR",
     "complexite",
-    38,
-    44,
+    39,
+    45,
     "LoopFilling.dropAllman fait 6 lignes (seuil souhaite 5).",
     "e293d83e",
     "void dropAllman(List<String> names)",
     "LoopFilling.dropAllman"
+   ],
+   [
+    "CPX.CYCLOMATIC",
+    "MINOR",
+    "complexite",
+    47,
+    54,
+    "LoopFilling.removeThenStop a une complexite cyclomatique de 3 (seuil souhaite 2).",
+    "3fbcf346",
+    "void removeThenStop(List<String> names, String target) {",
+    "LoopFilling.removeThenStop"
+   ],
+   [
+    "CPX.FUNCTION_SIZE",
+    "MINOR",
+    "complexite",
+    47,
+    54,
+    "LoopFilling.removeThenStop fait 7 lignes (seuil souhaite 5).",
+    "e293d83e",
+    "void removeThenStop(List<String> names, String target) {",
+    "LoopFilling.removeThenStop"
    ]
   ],
   "imports": [],
@@ -23108,7 +23300,19 @@
  },
  "seuils_bas|tout|java/LoopFilling.java": {
   "blocks": [],
-  "file": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    57,
+    0,
+    "Ligne de 70 caracteres (seuil 60).",
+    "b875b8b0",
+    "for (final Map.Entry<String, Integer> entry : counts.entrySet()) {",
+    null
+   ]
+  ],
   "lines": []
  },
  "seuils_bas|tout|java/Naming.java": {
@@ -27184,7 +27388,19 @@
  },
  "seuils_bas|un_sur_sept|java/LoopFilling.java": {
   "blocks": [],
-  "file": [],
+  "file": [
+   [
+    "CNV.LINE_LENGTH",
+    "MINOR",
+    "convention",
+    57,
+    0,
+    "Ligne de 70 caracteres (seuil 60).",
+    "b875b8b0",
+    "for (final Map.Entry<String, Integer> entry : counts.entrySet()) {",
+    null
+   ]
+  ],
   "lines": []
  },
  "seuils_bas|un_sur_sept|java/Naming.java": {
