@@ -3,7 +3,7 @@ kind: plugin
 name: code-supervisor
 displayName: Code Supervisor
 description: Supervision automatique du code produit par un agent, avec renvoi en correction sur probleme bloquant. A utiliser pour relire un diff ou un ensemble de fichiers et rendre un verdict sur la securite, les bugs introduits, la duplication, la complexite, le nommage et les conventions du projet.
-version: 1.2.1
+version: 1.3.0
 status: experimental
 category: development
 tags:
@@ -17,7 +17,6 @@ tags:
   - automation
 compatibility:
   - claude-code
-  - claude-desktop
 requires:
   - python>=3.8
   - git

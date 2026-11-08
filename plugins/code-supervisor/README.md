@@ -300,6 +300,28 @@ Priorite : `log_dir` (configuration utilisateur ou du moteur, chemin libre), pui
 
 ---
 
+## Limites connues
+
+- **Expressions regulieres, pas d'arbre syntaxique.** L'extraction des fonctions et les regles par bloc
+  lisent le texte ligne a ligne. Un corps-expression ecrit sur plusieurs lignes (`fun total() = a +` puis
+  `b` en Kotlin) n'est compte que sur sa premiere ligne ; un litteral ou un appel coupe sur plusieurs lignes
+  n'est vu que morceau par morceau.
+- **Gardes reconnues localement.** `BUG.DIV_ZERO` ne regarde que les diviseurs nommes `size()`, `length`,
+  `count`, `total` ou `n`, et ne reconnait qu'un test sur le diviseur lui-meme dans la meme fonction.
+- **Origine des valeurs inconnue.** `SEC.SQL_CONCAT` (variante hors appel d'execution, MAJOR) signale toute
+  concatenation apres un litteral qui contient un mot SQL, constante ou message d'erreur compris : la regle
+  ne sait pas d'ou vient la valeur concatenee.
+- **Fichiers de donnees.** JSON, YAML ou XML passent par les controles de forme : un fichier de donnees aux
+  longues lignes produit une serie de MINOR « ligne trop longue ».
+- **Tests de caracterisation.** Les suites `hook`, `rules` et `install` figent le comportement, defauts
+  compris. Seule `precision` affirme un resultat (aucun CRITICAL sur du code propre), et seulement sur les
+  motifs de son corpus.
+- **Couche modele testee sur option.** La suite `llm` (`SUPERVISOR_LLM_IT=1`) l'exerce avec le vrai CLI ;
+  la CI ne la lance pas, et une reponse de modele varie d'un passage a l'autre.
+- **`--check` sans chemin appelle aussi le modele**, meme sans `--llm` ; `SUPERVISOR_NO_LLM=1` l'evite.
+
+---
+
 ## Verifications effectuees
 
 | Verification | Resultat |
@@ -308,7 +330,10 @@ Priorite : `log_dir` (configuration utilisateur ou du moteur, chemin libre), pui
 | Bruit sur 10 fichiers reels d'un projet Java (~2 000 lignes) | 21 constats, 0 critical, 4 major tous plausibles |
 | Anti-boucle sur 5 passes du meme lot | blocage 3 fois, puis avertissement, stable |
 | Gardes `stop_hook_active`, anti-recursion, hors depot git, auto-supervision | sortie vide, aucun effet |
-| Chaine de bout en bout avec la couche modele | validee avec une CLI factice, non exercee contre le modele reel |
+| Chaine de bout en bout avec la couche modele | suite `llm`, vrai CLI et `haiku` : bug detecte, diff propre sans CRITICAL, session absente, delai depasse et sortie non JSON sans blocage |
+| CRITICAL en usage reel (526 passes, trois projets) | 67 constats distincts relus : faux positifs corriges dans six motifs, cas de corpus pour chacun |
+| Justesse des CRITICAL | suite `precision` : aucun CRITICAL sur 8 fichiers propres en six langages |
+| Surfaces | exerce dans Claude Code seulement (installation manuelle, onglet Code de l'application de bureau compris). Non declarees : `claude-desktop` (mode Cowork), `claude-ai` et `claude-api`, ou les hooks ne s'executent pas |
 
 ---
 
