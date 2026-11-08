@@ -1,32 +1,56 @@
 # Tests de caractérisation du superviseur de code
 
-Filet de sécurité pour les refactorisations du moteur. Ces tests ne disent pas que le superviseur a
-« raison » : ils disent que **sa sortie n'a pas changé**. Une sortie qui bouge sans qu'on l'ait voulu
-fait échouer le test ; une sortie qui bouge volontairement se valide en régénérant la référence.
+Filet de sécurité pour les refactorisations du moteur. Les suites à référence ne disent pas que le
+superviseur a « raison » : elles disent que **sa sortie n'a pas changé**. Une sortie qui bouge sans qu'on
+l'ait voulu fait échouer le test ; une sortie qui bouge volontairement se valide en régénérant la référence.
+La suite `precision` affirme, elle, un résultat attendu : aucun CRITICAL sur du code propre.
 
 ## Lancer
 
 ```bash
 python plugins/code-supervisor/tests/run_tests.py                # compare le moteur aux références
-python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : hook, rules ou install
+python plugins/code-supervisor/tests/run_tests.py --only rules   # une seule suite : manifest, precision, hook, rules, install ou llm
 python plugins/code-supervisor/tests/run_tests.py --update       # régénère golden/ après un changement voulu
 python plugins/code-supervisor/tests/run_tests.py --script ~/.claude/hooks/supervisor.py   # moteur installé
 ```
 
-Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux.
+Aucune dépendance en dehors de Python et de `git`. La CI les rejoue sur Linux. La suite `llm` est ignorée
+sauf si `SUPERVISOR_LLM_IT=1` (voir plus bas) : la CI ne la lance jamais.
 
-## Trois suites
+## Six suites
 
 | Suite | Ce qu'elle exerce | Référence |
 |---|---|---|
+| `manifest` | la cohérence de `hooks/hooks.json` avec le README et `install.py` | aucune : assertions |
+| `precision` | le moteur complet sur `precision/`, du code propre : zéro CRITICAL attendu | aucune : assertions |
 | `hook` | le hook de bout en bout : charge utile sur stdin, sortie sur stdout, dans des dépôts git jetables | `golden/hook_scenarios.json` |
 | `rules` | toutes les règles de détection sur `corpus/` : par ligne, par bloc, par fichier, sécurité, nommage, imports, complexité et bugs par fonction, extraction des fonctions, duplication | `golden/rules.json` |
 | `install` | l'installeur `install.py` : installation, réinstallation, désinstallation, dans un dossier de configuration jetable | `golden/install_scenarios.json` |
+| `llm` | la couche modèle avec le vrai CLI `claude`, sur option | aucune : assertions |
 
-**`hook`** (40 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
+**`manifest`** : `hooks/hooks.json` déclare exactement `Stop` et `SubagentStop`, un handler `command` chacun,
+dont le timeout couvre `llm.timeout_seconds` plus `time_budget_seconds` du `supervisor.config.json` livré ;
+la forme du handler (shell, ou exec si `args` est présent) est celle qu'annonce le README, qui reprend la
+commande exacte en forme shell ; le `timeout` est égal à `HOOK_TIMEOUT_SECONDS` de `install.py`. Elle porte
+sur les fichiers du dépôt, y compris avec `--script`.
+
+**`precision`** : `engine.analyze` relit chaque fichier de `precision/` comme nouveau (toutes ses lignes
+comptent), avec les réglages par défaut et sans outil externe, et la suite échoue au premier CRITICAL, en
+nommant le fichier, la ligne et la règle. MAJOR et MINOR ne sont pas évalués. Le code y est propre et
+réaliste (Java, Kotlin, Python, TypeScript, Go, C#) et reprend des motifs légitimes qu'une règle a déjà
+pris pour des défauts bloquants : requête paramétrée assemblée de littéraux, liste `IN (?, ?)` construite
+de `?`, message d'erreur contenant un mot SQL, boucle qui lit une liste remplie avant elle, catch d'une ligne
+qui relance, catch vide justifié, `contains("pwd=")`, chaîne de connexion factice dans un test. Avec
+`--script`, c'est le moteur désigné qui est évalué.
+
+**`hook`** (46 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
 transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, session dont le dossier courant est un sous-dossier du dépôt (rapports, état et configuration de projet à la racine Git, état retrouvé à la passe suivante), `log_subdir` du projet et ses valeurs refusées (`..`, chemin absolu, `.git`), chemin accentué, `--check`
-avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée.
+avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée, sauf dans
+deux familles qui la confient à un faux CLI : revue en échec (session expirée), et `llm_gate_*`, où un faux
+relecteur note chaque appel. `llm_gate_*` vérifie que `llm.min_changed_lines`, `llm.code_files_only` et
+`llm.on_subagent_stop` sautent la revue quand ils le doivent, et seulement alors (`reviewer_called`), et que
+le verdict en donne la raison.
 
 **`install`** (22 entrées) : installation neuve, de projet (`--project`), réinstallation, mise à jour d'un ancien
 hook, désinstallation (après installation, sans rien installer, avec un groupe partagé avec un autre hook), et
@@ -37,7 +61,7 @@ ont aussi leur scénario. L'installeur tourne avec un `HOME` et un `USERPROFILE`
 ignorerait `CLAUDE_CONFIG_DIR` écrirait là, pas dans le `~/.claude` de la personne qui lance les tests. La suite
 est ignorée quand `install.py` n'est pas à côté du moteur testé (cas de `--script ~/.claude/hooks/supervisor.py`).
 
-**`rules`** (621 entrées), trois familles :
+**`rules`** (656 entrées), trois familles :
 
 - `<config>|<sélection>|<fichier>` : `check_lines`, `check_blocks` et `check_file`, avec deux jeux de seuils
   (défauts et seuils bas) et deux sélections de lignes modifiées (toutes, une sur sept : `is_changed`
@@ -66,6 +90,45 @@ lues dans les modules de règles) : une règle ajoutée sans cas de corpus fait 
 figure dans `UNCOVERED_RULES` avec sa raison. Sans cela, une règle qui cesse de se déclencher passerait
 inaperçue.
 
+## Suite `llm` : la couche modèle pour de vrai
+
+```bash
+SUPERVISOR_LLM_IT=1 python plugins/code-supervisor/tests/run_tests.py --only llm
+```
+
+```powershell
+$env:SUPERVISOR_LLM_IT = "1"; python plugins/code-supervisor/tests/run_tests.py --only llm
+```
+
+Prérequis : le CLI `claude` dans le PATH et une session ouverte (`claude` puis `/login`). Cinq cas :
+
+| Cas | Ce qu'il fait | Attendu |
+|---|---|---|
+| `revue_bug` | `llm.review` sur un diff qui fausse une moyenne (`/ (len(values) + 1)`) | au moins un constat sur `stats.py` qui vise la division |
+| `revue_propre` | `llm.review` sur un diff correct (garde de liste vide) | aucun CRITICAL |
+| `non_authentifie` | le hook, avec un dossier de configuration vide et sans variable d'authentification | « analyse statique seule », pas de blocage |
+| `delai_depasse` | le hook, avec `llm.timeout_seconds` à 1 | idem, verdict « revue LLM indisponible » |
+| `sortie_non_json` | le hook, avec un CLI de revue qui renvoie `claude --version` | idem, verdict « revue LLM sans resultat exploitable » |
+
+**Coût.** Seuls `revue_bug` et `revue_propre` obtiennent une réponse du modèle : deux appels à `haiku`, sur un
+diff de quelques lignes. La suite affiche pour chacun le coût, les jetons et la durée annoncés par le CLI
+(`total_cost_usd` de son enveloppe JSON). Les trois cas d'erreur ne reçoivent aucune réponse du modèle.
+
+Mesure du 2026-10-27 (Claude Code 2.1.292, `haiku`) :
+
+| Cas | Coût annoncé | Jetons en entrée | Jetons en sortie | Durée |
+|---|---|---|---|---|
+| `revue_bug` | 0,057 USD | 126 491 | 1 592 | 21 s |
+| `revue_propre` | 0,072 USD | 170 493 | 3 399 | 36 s |
+
+Soit environ 0,13 USD et 70 s pour la suite entière. Le volume en entrée ne vient pas du diff (8 lignes) : il
+vient du contexte de `claude -p` et des lectures de fichiers que le relecteur peut faire avec ses outils, sur
+plusieurs tours. Le coût d'une revue dépend donc peu de la taille du diff, et davantage du modèle choisi.
+
+La session réelle (dossier de configuration de Claude Code) sert à `revue_bug`, `revue_propre` et `delai_depasse`.
+Seul `delai_depasse`, qui passe par le hook, lit aussi `~/.claude/supervisor.config.json`, sous la configuration
+de projet que la suite lui donne (modèle, délai) ; les deux revues prennent les réglages par défaut du moteur.
+
 ## Le corpus
 
 `corpus/` contient du code **volontairement fautif**, écrit à la main : Java (dont des chemins `test/` et
@@ -85,6 +148,11 @@ chaque modification du corpus ferait bloquer l'agent.
 
 **Ajouter un cas** : déposer un fichier dans `corpus/`, lancer `--update`, relire le diff de `golden/` : il
 doit montrer exactement les constats que l'on attend, et rien d'autre.
+
+**Corriger un faux positif** : un cas minimal dans `corpus/` d'abord (code inventé qui reproduit le motif, jamais
+le code d'origine), puis la correction de la règle, puis `--update` ; le diff de `golden/` ne bouge que sur ce
+motif. Si le motif est légitime et courant, l'ajouter aussi à `precision/`. `precision/` est silencieux pour le
+superviseur, comme `corpus/`.
 
 ## Portabilité des références
 
@@ -116,6 +184,8 @@ commentaire de `catch` passait inaperçue tant qu'aucun commentaire ne faisait 2
 - `BUG.DIV_ZERO` ne regarde que les diviseurs nommés `size()`, `length`, `count`, `total` ou `n`, nus ou portés
   par un objet, et reconnaît comme garde un test de valeur sur le diviseur lui-même (`if n:`, `if (!xs.length)`).
   Un test sur une autre variable, ou une garde dans une autre fonction, ne compte pas.
-- La couverture porte sur le déclenchement des règles et la stabilité de leur sortie, pas sur leur
-  justesse : un faux positif figé dans la référence n'est pas détecté.
-- La revue par modèle (`llm.py`) n'est pas exercée : elle suppose le CLI `claude` authentifié.
+- La suite `rules` porte sur le déclenchement des règles et la stabilité de leur sortie, pas sur leur
+  justesse : un faux positif figé dans la référence n'y est pas détecté. `precision` couvre les CRITICAL, et
+  seulement sur les motifs que son corpus contient.
+- La revue par modèle (`llm.py`) n'est exercée que par la suite `llm`, sur option : la CI ne la couvre pas,
+  et un modèle peut répondre autrement d'un passage à l'autre.

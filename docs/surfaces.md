@@ -74,7 +74,7 @@ artefact déclare cette surface quand il ne suppose rien de l'environnement d'ex
 | `generate-uml-diagrams` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `arc42-architecture` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `setup-app-documentation` | skill | ✅ | ⬜ | ❌ | ❌ |
-| `code-supervisor` | plugin | ✅ | ✅ | ❌ | ❌ |
+| `code-supervisor` | plugin | ✅ | ❌ | ❌ | ❌ |
 
 **Légende**
 

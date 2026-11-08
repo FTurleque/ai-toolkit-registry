@@ -10,7 +10,7 @@ import subprocess
 from typing import List, Optional, Tuple
 
 from model import CRITICAL, LLM_NOTE_PREFIX, MAJOR, MINOR, Finding
-from source import SourceFile, git_diff_text
+from source import SourceFile, git_diff_text, is_structural
 
 SYSTEM = """Tu es le superviseur de code d'une equipe. Un agent vient de modifier du code.
 Tu relis SON diff, pas le reste du depot. Tu ne corriges rien : tu produis un verdict que
@@ -78,6 +78,23 @@ def available(cfg) -> Optional[str]:
     return shutil.which(cli) or (cli if os.path.isfile(cli) else None)
 
 
+def skip_reason(files: List[SourceFile], cfg, event: str = "") -> str:
+    """Raison de ne pas appeler le modele a cette passe, ou chaine vide. Le verdict la reprend : le rapport dit
+    « analyse statique seule » au lieu de laisser croire a une relecture complete."""
+    if not available(cfg):
+        return ""
+    if event == "SubagentStop" and not cfg.llm.get("on_subagent_stop", True):
+        return "%s non demandee sur SubagentStop (llm.on_subagent_stop)" % LLM_NOTE_PREFIX
+    if cfg.llm.get("code_files_only") and not any(is_structural(sf.path) for sf in files):
+        return "%s non demandee : aucun fichier de code (llm.code_files_only)" % LLM_NOTE_PREFIX
+    threshold = int(cfg.llm.get("min_changed_lines") or 0)
+    changed = sum(len(sf.changed) or sf.nb_lines for sf in files)
+    if changed < threshold:
+        return "%s non demandee : %d ligne(s) modifiee(s), seuil %d (llm.min_changed_lines)" % (
+            LLM_NOTE_PREFIX, changed, threshold)
+    return ""
+
+
 def _read_head(path: str, limit: int) -> Optional[str]:
     try:
         with open(path, "r", encoding="utf-8", errors="replace") as fh:
@@ -132,12 +149,16 @@ def _run_reviewer(exe: str, prompt: str, root: str, cfg) -> Tuple[Optional[str],
     env = dict(os.environ)
     env["CLAUDE_CODE_DISABLE_HOOKS"] = "1"       # le relecteur ne doit pas redeclencher le hook
     env["SUPERVISOR_ACTIVE"] = "1"
+    timeout = cfg.llm.get("timeout_seconds", 180)
     try:
         # Le prompt passe par l'entree standard : en argument, un diff de quelques dizaines de milliers
         # de caracteres depasse la limite de ligne de commande de Windows (WinError 206).
         proc = subprocess.run(cmd, input=prompt.encode("utf-8"), cwd=root,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              timeout=cfg.llm.get("timeout_seconds", 180), env=env)
+                              timeout=timeout, env=env)
+    except subprocess.TimeoutExpired:
+        # Le message de l'exception recopie la ligne de commande, prompt systeme compris : il ne dirait rien.
+        return None, "%s indisponible (delai de %s s depasse)" % (LLM_NOTE_PREFIX, timeout)
     except (OSError, subprocess.SubprocessError) as exc:
         return None, "%s indisponible (%s)" % (LLM_NOTE_PREFIX, exc)
     output = proc.stdout.decode("utf-8", "replace")

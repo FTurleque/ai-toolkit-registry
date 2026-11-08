@@ -9,6 +9,26 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Modifié — `code-supervisor` 1.3.0 : CRITICAL fiables, coût de la revue par modèle réglable
+
+- **Hook documenté tel qu'il est déclaré** : forme shell (`command`), lancée par `sh`, Git Bash ou PowerShell ;
+  `docs/install.md` corrige son exemple de hook. La suite `manifest` vérifie que `hooks.json`, le README,
+  l'installeur et les délais du moteur restent cohérents.
+- **Faux positifs CRITICAL corrigés**, relevés sur 526 passes réelles : modification de collection hors du corps
+  de la boucle, catch écrit sur une ligne lu comme vide, chaîne de connexion de test, mot-clé de secret dans un
+  littéral. `BUG.CONCURRENT_MODIFICATION` examine chaque for-each, y compris en `final` et sur
+  `entrySet()`, `keySet()` ou `values()`, reconnaît `addAll` et `putAll`, et ignore un retrait suivi de `break`
+  ou de `return`, qui ne relance pas l'itérateur. La variante « assemblée » de `SEC.SQL_CONCAT` et le catch vide au commentaire trop court passent en
+  MAJOR. Un cas de corpus par motif ; la suite `precision` exige zéro CRITICAL sur du code propre.
+- **Revue par modèle** : un délai dépassé est annoncé comme tel. Trois clés évitent la revue aux passes qui ne la
+  justifient pas : `llm.min_changed_lines`, `llm.code_files_only`, `llm.on_subagent_stop` ; leurs défauts
+  gardent une revue à chaque passe. Le README donne le coût mesuré d'une passe.
+- **Tests** : suite `llm` sur option (`SUPERVISOR_LLM_IT=1`) avec le vrai CLI ; six scénarios `hook` pour les
+  nouveaux réglages.
+- **Compatibilité** : `claude-desktop` retiré ; les hooks ne s'exécutent que dans Claude Code. Statut
+  `experimental` maintenu jusqu'à l'installation en plugin.
+- README : section « Limites connues ».
+
 ### Ajouté — skill `setup-app-documentation` 1.0.0
 
 Met en place la documentation d'une application dans `docs/`, rangée par lecteur (`user/`, `developer/`,

@@ -55,6 +55,10 @@ DEFAULTS = {
         "cli": "claude",
         "model": "sonnet",
         "timeout_seconds": 180,
+        # Appels au modele evites a certaines passes ; ces valeurs gardent une revue a chaque passe.
+        "min_changed_lines": 0,
+        "code_files_only": False,
+        "on_subagent_stop": True,
         "max_diff_chars": 60000,
         "max_static_findings_in_prompt": 25,
         # Fichiers de conventions lus par le relecteur, s'ils existent.

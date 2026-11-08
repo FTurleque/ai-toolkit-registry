@@ -197,20 +197,35 @@ def _is_silent_exit(sf: SourceFile, i: int, closing: int, body) -> bool:
     return not re.search(r"\breturn\s+\"", " ".join(sf.lines[i:closing + 1]))
 
 
+# Catch vide : (gravite, message, correctif) selon le commentaire qui l'accompagne. Un bloc vide mais commente
+# est une decision assumee : signale sans bloquer ; un commentaire trop court pour justifier quoi que ce soit
+# reste signale, sans bloquer non plus.
+_SWALLOWED = {
+    "justifie": (
+        MINOR, "Exception capturee et ignoree, avec justification en commentaire.",
+        "Verifier que l'absence de journalisation est toujours justifiee."),
+    "commentaire_court": (
+        MAJOR, "Exception capturee et ignoree, avec un commentaire trop court pour justifier ce choix.",
+        "Dire en une phrase pourquoi l'erreur peut etre ignoree, ou la journaliser avec son contexte."),
+    "silencieux": (
+        CRITICAL, "Exception capturee puis ignoree : l'erreur disparait sans trace.",
+        "Journaliser l'exception avec son contexte, ou la propager ; un bloc catch vide n'est acceptable "
+        "qu'avec un commentaire expliquant pourquoi l'erreur peut etre ignoree."),
+}
+
+
+def _swallowed_kind(comment: str) -> str:
+    if len(comment) >= _DOCUMENTED_MIN_CHARS:
+        return "justifie"
+    return "commentaire_court" if comment else "silencieux"
+
+
 def _catch_findings(sf: SourceFile, clean, i: int, match) -> List[Finding]:
     body, closing = _brace_body(clean, i, match.end(0) - 1)
     if _is_empty_body(body):
-        # Un bloc vide mais commente est une decision assumee : on signale sans bloquer.
-        documented = len(_comment_in(sf, i + 1, closing + 1)) >= _DOCUMENTED_MIN_CHARS
+        severity, message, fix = _SWALLOWED[_swallowed_kind(_comment_in(sf, i + 1, closing + 1))]
         return [Finding(
-            rule="BUG.CATCH_SWALLOWED", category=CAT_BUG,
-            severity=MINOR if documented else CRITICAL,
-            message=("Exception capturee et ignoree, avec justification en commentaire."
-                     if documented else
-                     "Exception capturee puis ignoree : l'erreur disparait sans trace."),
-            fix=("Verifier que l'absence de journalisation est toujours justifiee."
-                 if documented else
-                 "Journaliser l'exception avec son contexte, ou la propager ; un bloc catch vide n'est acceptable qu'avec un commentaire expliquant pourquoi l'erreur peut etre ignoree."),
+            rule="BUG.CATCH_SWALLOWED", category=CAT_BUG, severity=severity, message=message, fix=fix,
             file=sf.path, line=i + 1, end_line=closing + 1,
             evidence=sf.snippet(i + 1), symbol=match.group(1).strip()[:60],
         )]
@@ -310,6 +325,10 @@ def _brace_body(lines, start_line: int, brace_col: int):
             elif c == "}":
                 depth -= 1
                 if depth == 0:
+                    # le texte qui precede l'accolade fermante fait partie du corps : `{ throw e; }` n'est pas vide
+                    tail = line[begin + 1 if i == start_line else 0:col].strip()
+                    if tail:
+                        body.append(tail)
                     return body, i
         if i > start_line or depth > 0:
             segment = line if i != start_line else line[brace_col + 1:]
@@ -331,6 +350,49 @@ def _comment_in(sf, start: int, end: int) -> str:
 
 def _is_empty_body(body) -> bool:
     return all((not b) or b in ("{", "}") for b in body)
+
+
+_FOREACH = re.compile(
+    r"\bfor\s*\(\s*(?:final\s+)?\w[\w<>,.?\s\[\]]*\s+\w+\s*:\s*(?P<coll>\w+)"
+    r"(?:\s*\.\s*(?:entrySet|keySet|values)\s*\(\s*\))?\s*\)")
+_MODIFIERS = r"(?:add|addAll|remove|clear|put|putAll)"
+
+
+def _loop_body(text: str, pos: int) -> str:
+    """Corps de la boucle dont la parenthese fermante se termine en `pos` : le bloc entre accolades,
+    ou l'instruction unique quand il n'y a pas d'accolades."""
+    i = pos
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i < len(text) and text[i] == "{":
+        depth = 0
+        for j in range(i, len(text)):
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    return text[i + 1:j]
+        return text[i + 1:]
+    end = text.find(";", i)
+    return text[i:end + 1 if end >= 0 else len(text)]
+
+
+def _modifies_iterated_collection(body: str) -> bool:
+    """Vrai si un for-each modifie, dans son propre corps, la collection qu'il parcourt.
+
+    Chaque boucle est examinee, pas seulement la premiere. Une modification faite avant ou apres la boucle
+    ne compte pas, et celle qui est immediatement suivie de `break` ou de `return` ne relance pas
+    l'iterateur, donc ne leve pas d'exception."""
+    for loop in _FOREACH.finditer(body):
+        inner = _loop_body(body, loop.end())
+        pattern = r"\b%s\s*\.\s*%s\s*\(" % (re.escape(loop.group("coll")), _MODIFIERS)
+        for mod in re.finditer(pattern, inner):
+            statement_end = inner.find(";", mod.end())
+            following = inner[statement_end + 1:].lstrip() if statement_end >= 0 else ""
+            if not following.startswith(("break", "return")):
+                return True
+    return False
 
 
 def _is_tested_for_value(body: str, divisor: str) -> bool:
@@ -364,17 +426,14 @@ def check_function_bugs(sf: SourceFile, functions: List[Function]) -> List[Findi
                 evidence=sf.snippet(fn.start),
             ))
         # boucle qui modifie la collection iteree
-        if re.search(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+(\w+)\s*:\s*(\w+)\s*\)", body):
-            m = re.search(r"for\s*\(\s*\w[\w<>,\s\[\]]*\s+(\w+)\s*:\s*(\w+)\s*\)", body)
-            coll = m.group(2)
-            if re.search(r"\b%s\.(?:add|remove|clear|put)\s*\(" % re.escape(coll), body):
-                findings.append(Finding(
-                    rule="BUG.CONCURRENT_MODIFICATION", category=CAT_BUG, severity=CRITICAL,
-                    message="Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
-                    fix="Parcourir une copie, utiliser un Iterator avec remove(), ou removeIf().",
-                    file=sf.path, line=fn.start, end_line=fn.end, symbol=fn.qualified,
-                    evidence=sf.snippet(fn.start),
-                ))
+        if _modifies_iterated_collection(body):
+            findings.append(Finding(
+                rule="BUG.CONCURRENT_MODIFICATION", category=CAT_BUG, severity=CRITICAL,
+                message="Collection modifiee pendant son parcours : ConcurrentModificationException a l'execution.",
+                fix="Parcourir une copie, utiliser un Iterator avec remove(), ou removeIf().",
+                file=sf.path, line=fn.start, end_line=fn.end, symbol=fn.qualified,
+                evidence=sf.snippet(fn.start),
+            ))
         # division entiere ou division par une variable sans garde
         if _is_unguarded_division(body):
             findings.append(Finding(

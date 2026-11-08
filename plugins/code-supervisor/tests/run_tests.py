@@ -3,11 +3,13 @@
 
   python tests/run_tests.py                  compare le moteur aux references de golden/
   python tests/run_tests.py --update         regenere les references (apres un changement voulu)
-  python tests/run_tests.py --only rules     une seule suite : `hook`, `rules` ou `install`
+  python tests/run_tests.py --only rules     une seule suite : `manifest`, `precision`, `hook`, `rules`, `install` ou `llm`
   python tests/run_tests.py --script ~/.claude/hooks/supervisor.py    teste un moteur installe
 
-Trois suites : les scenarios de bout en bout du hook, toutes les regles de detection sur un corpus
-statique, et les scenarios de l'installeur. Elles servent de filet de securite aux refactorisations : une sortie qui
+Six suites : la coherence du manifeste de hooks avec la documentation, l'absence de CRITICAL sur du code propre,
+les scenarios de bout en bout du hook, toutes les regles de detection sur un corpus statique, les scenarios de
+l'installeur, et la couche modele avec le vrai CLI `claude` (sur option : SUPERVISOR_LLM_IT=1). Les suites hook,
+rules et install comparent a une reference et servent de filet de securite aux refactorisations : une sortie qui
 change sans qu'on l'ait voulu fait echouer le test."""
 from __future__ import annotations
 
@@ -20,12 +22,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import hook_scenarios
+import llm_integration
+import manifest_checks
+import precision_checks
 import install_scenarios
 import rules_corpus
 
-DEFAULT_SCRIPT = os.path.join(os.path.dirname(HERE), "resources", "supervisor.py")
+PLUGIN_DIR = os.path.dirname(HERE)
+DEFAULT_SCRIPT = os.path.join(PLUGIN_DIR, "resources", "supervisor.py")
 GOLDEN_DIR = os.path.join(HERE, "golden")
 CORPUS_DIR = os.path.join(HERE, "corpus")
+PRECISION_DIR = os.path.join(HERE, "precision")
 MAX_DIFFERENCES_SHOWN = 5
 
 
@@ -94,6 +101,48 @@ def _suite_install(script: str):
     return install_scenarios.run(script)
 
 
+def _manifest_passes() -> bool:
+    print("[manifest]")
+    found = manifest_checks.problems(PLUGIN_DIR)
+    if not found:
+        print("  OK : hooks/hooks.json coherent avec le README et install.py")
+        return True
+    print("  ECHEC : %d incoherence(s)" % len(found))
+    for problem in found:
+        print("    - " + problem)
+    return False
+
+
+
+def _precision_passes(script: str) -> bool:
+    print("[precision]")
+    engine_dir = os.path.join(os.path.dirname(script), "supervisor")
+    found = precision_checks.problems(engine_dir, PRECISION_DIR)
+    if not found:
+        print("  OK : aucun CRITICAL sur %d fichiers de code propre" % precision_checks.count_files(PRECISION_DIR))
+        return True
+    print("  ECHEC : %d CRITICAL sur du code propre" % len(found))
+    for problem in found:
+        print("    - " + problem)
+    return False
+
+
+
+def _llm_passes(script: str) -> bool:
+    print("[llm]")
+    if not llm_integration.enabled():
+        print("  ignoree : %s=1 pour l'activer (appelle le vrai modele)" % llm_integration.ENABLE_VAR)
+        return True
+    found = llm_integration.problems(script)
+    if not found:
+        print("  OK : revue par modele et chemins d'erreur conformes")
+        return True
+    print("  ECHEC : %d probleme(s)" % len(found))
+    for problem in found:
+        print("    - " + problem)
+    return False
+
+
 SUITES = {"hook": ("hook_scenarios", _suite_hook), "rules": ("rules", _suite_rules),
           "install": ("install_scenarios", _suite_install)}
 
@@ -101,7 +150,7 @@ SUITES = {"hook": ("hook_scenarios", _suite_hook), "rules": ("rules", _suite_rul
 def main(argv) -> int:
     parser = argparse.ArgumentParser(description="Tests de caracterisation du superviseur de code.")
     parser.add_argument("--update", action="store_true", help="regenere les references")
-    parser.add_argument("--only", choices=sorted(SUITES), help="une seule suite")
+    parser.add_argument("--only", choices=sorted(list(SUITES) + ["manifest", "precision", "llm"]), help="une seule suite")
     parser.add_argument("--script", default=DEFAULT_SCRIPT, help="supervisor.py a tester")
     args = parser.parse_args(argv)
     script = os.path.abspath(args.script)
@@ -109,6 +158,10 @@ def main(argv) -> int:
         print("supervisor.py introuvable : %s" % script)
         return 2
     failed = False
+    if args.only in (None, "manifest"):
+        failed = not _manifest_passes()
+    if args.only in (None, "precision") and not _precision_passes(script):
+        failed = True
     for key, (golden_name, suite) in SUITES.items():
         if args.only and args.only != key:
             continue
@@ -122,6 +175,8 @@ def main(argv) -> int:
             print("  reference golden/%s.json ecrite (%d entrees)" % (golden_name, len(actual)))
         elif not _compare(golden_name, actual):
             failed = True
+    if args.only in (None, "llm") and not _llm_passes(script):
+        failed = True
     return 1 if failed else 0
 
 

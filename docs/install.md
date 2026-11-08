@@ -120,13 +120,18 @@ handlers, et plusieurs handlers peuvent coexister sur un même événement.
       {
         "matcher": "",
         "hooks": [
-          { "type": "command", "args": ["python", "~/.claude/hooks/mon-hook.py"], "timeout": 60 }
+          { "type": "command", "command": "python \"$HOME/.claude/hooks/mon-hook.py\"", "timeout": 60 }
         ]
       }
     ]
   }
 }
 ```
+
+La chaîne `command` passe par un shell : `sh -c` sous Linux et macOS, Git Bash sous Windows, ou
+PowerShell si Git Bash est absent. `$HOME` se développe dans les trois ; `~` entre guillemets, non.
+La forme exec existe aussi : `command` désigne alors l'exécutable et `args` la liste de ses
+arguments, sans shell, donc sans développement de `$HOME` ni de `~`.
 
 Sauvegarder le fichier avant de le modifier. Quand un hook fait partie d'un outil plus large,
 préférer sa version empaquetée en plugin : elle s'installe et se retire proprement.
