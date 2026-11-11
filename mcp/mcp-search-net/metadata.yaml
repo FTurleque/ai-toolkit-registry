@@ -1,0 +1,27 @@
+kind: mcp-server
+name: mcp-search-net
+displayName: mcp-search-net
+description: >-
+  Branche le serveur local mcp-search-net : recherche Web (SearXNG), lecture de pages publiques
+  protégée contre le SSRF et catalogue documentaire local, en lecture seule. Livré avec une règle
+  qui dit à Claude quand s'en servir sans qu'on le lui demande.
+version: 1.0.0
+status: experimental
+category: research
+tags:
+  - web-search
+  - fetch
+  - documentation
+  - searxng
+  - read-only
+compatibility:
+  - claude-code
+  - claude-desktop
+requires:
+  - Windows (installateur mcp-search-net)
+  - Docker Desktop (SearXNG et Crawl4AI)
+  - variable d'environnement MCP_SEARCH_HOME
+authors:
+  - Fabrice Turleque
+license: MIT
+homepage: https://github.com/FTurleque/mcp-search-net

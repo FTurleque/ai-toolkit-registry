@@ -17,7 +17,8 @@ hooks/<nom-du-hook>/
 ├── metadata.yaml        métadonnées du registre (obligatoire)
 ├── README.md            événement visé, effet, risques, installation (obligatoire)
 ├── settings.hooks.json  extrait à fusionner dans un settings.json (obligatoire en pratique)
-├── <script>             le code exécuté (.py, .sh, .ps1)
+├── <script>             le code exécuté (.py, .sh, .ps1), absent si le hook appelle un outil tiers
+├── rules/               une règle qui explique à Claude l'effet du hook (facultatif)
 └── examples/            entrée et sortie réelles du hook
 ```
 

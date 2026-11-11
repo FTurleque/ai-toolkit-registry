@@ -1,0 +1,9 @@
+{
+  "_doc": "Extrait a fusionner dans la configuration MCP (portee utilisateur). Transport HTTP stream local. Le port est choisi par l'IDE : le relever dans Settings | Tools | MCP Server (Copy HTTP Stream Config) et definir JETBRAINS_MCP_PORT, ou utiliser Auto-Configure. Aucun secret.",
+  "mcpServers": {
+    "jetbrains": {
+      "type": "http",
+      "url": "http://127.0.0.1:${JETBRAINS_MCP_PORT}/stream"
+    }
+  }
+}

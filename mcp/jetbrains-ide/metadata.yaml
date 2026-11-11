@@ -1,0 +1,26 @@
+kind: mcp-server
+name: jetbrains-ide
+displayName: Serveur MCP des IDE JetBrains (IntelliJ IDEA)
+description: >-
+  Branche le serveur MCP intégré aux IDE JetBrains (IntelliJ IDEA 2025.2 et plus) : inspections,
+  recherche dans le projet ouvert, refactorisations, configurations d'exécution, terminal et outils
+  de base de données de l'IDE. À brancher pour que Claude Code s'appuie sur l'analyse de l'IDE
+  plutôt que sur une lecture de texte.
+version: 1.0.0
+status: draft
+category: development
+tags:
+  - intellij
+  - jetbrains
+  - ide
+  - inspections
+  - refactoring
+compatibility:
+  - claude-code
+requires:
+  - IntelliJ IDEA (ou un IDE JetBrains) 2025.2 ou plus, ouvert sur le projet
+  - plugin MCP Server de l'IDE activé (Settings | Tools | MCP Server)
+authors:
+  - Fabrice Turleque
+license: MIT
+homepage: https://www.jetbrains.com/help/idea/mcp-server.html

@@ -75,6 +75,12 @@ artefact déclare cette surface quand il ne suppose rien de l'environnement d'ex
 | `arc42-architecture` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `setup-app-documentation` | skill | ✅ | ⬜ | ❌ | ❌ |
 | `code-supervisor` | plugin | ✅ | ❌ | ❌ | ❌ |
+| `rtk` | hook | ✅ | ❌ | ❌ | ❌ |
+| `user-global-rules` | instructions | ✅ | ⬜ | ❌ | ❌ |
+| `mcp-search-net` | mcp-server | ✅ | ✅ | ❌ | ❌ |
+| `minos` | mcp-server | ✅ | ✅ | ❌ | ❌ |
+| `nexus` | mcp-server | ✅ | ✅ | ❌ | ❌ |
+| `jetbrains-ide` | mcp-server | ✅ | ⬜ | ❌ | ❌ |
 
 **Légende**
 

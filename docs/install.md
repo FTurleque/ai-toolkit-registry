@@ -138,15 +138,26 @@ préférer sa version empaquetée en plugin : elle s'installe et se retire propr
 
 ---
 
-## Instructions de projet
+## Instructions et règles
 
-Rien à installer dans `~/.claude`. Copier le gabarit à la racine du dépôt cible et le remplir :
+Un gabarit de projet se copie à la racine du dépôt cible et se remplit :
 
 ```bash
 cp instructions/<nom>/CLAUDE.md /chemin/du/projet/CLAUDE.md
 ```
 
 Versionner `CLAUDE.md` pour le partager avec l'équipe ; garder `CLAUDE.local.md` hors de git.
+
+Les règles (`rules/*.md`) se copient dans `<projet>/.claude/rules/` pour un dépôt, ou dans
+`~/.claude/rules/` pour tous vos projets. Un MCP ou un hook peut aussi livrer une règle qui
+explique à Claude comment s'en servir ; elle s'installe de la même façon :
+
+```bash
+mkdir -p ~/.claude/rules
+cp instructions/user-global-rules/rules/*.md ~/.claude/rules/
+```
+
+`/memory`, dans une nouvelle session, liste les fichiers chargés.
 
 ---
 
@@ -160,7 +171,27 @@ Versionner `CLAUDE.md` pour le partager avec l'équipe ; garder `CLAUDE.local.md
 
 Fusionner l'extrait `.mcp.json` de l'artefact, renseigner les secrets **par variables
 d'environnement**, puis vérifier dans une nouvelle session que les outils `mcp__<serveur>__*`
-apparaissent.
+apparaissent. En portée utilisateur : `claude mcp add-json --scope user <serveur> '<objet JSON>'`,
+puis `claude mcp list` pour l'état de connexion.
+
+Claude Code développe `${VAR}` dans `command`, `args`, `env` et `url`. Claude Desktop
+(`claude_desktop_config.json`) ne le fait pas : y écrire les valeurs résolues.
+
+---
+
+## Outils tiers
+
+Certains artefacts s'appuient sur un outil qui n'est pas dans ce dépôt. Il s'installe chez son
+éditeur ; le `requires` de l'artefact dit s'il est obligatoire ou facultatif.
+
+| Outil | Utilisé par | Installation |
+|-------|-------------|--------------|
+| Archgate CLI | `adr-audit`, `adr-check`, `adr-author`, `adr-policy`, `arc42-architecture`, `setup-app-documentation` — facultatif | voir [cli.archgate.dev](https://cli.archgate.dev) ; `archgate --version` pour vérifier |
+| Plugin Claude Code Archgate | aucun artefact du registre n'en dépend | `claude plugin marketplace add https://plugins.archgate.dev/archgate.git`, puis `claude plugin install archgate@archgate` |
+| RTK | `rtk` (hook) — obligatoire | voir le README du hook |
+
+Les skills ADR utilisent le **CLI** Archgate, pas son plugin : le plugin est un produit distinct
+(compte requis), dont `adr-policy/resources/archgate.md` documente les effets de bord.
 
 ---
 

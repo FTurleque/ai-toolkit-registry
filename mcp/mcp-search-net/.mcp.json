@@ -1,0 +1,15 @@
+{
+  "_doc": "Extrait a fusionner dans la configuration MCP (portee utilisateur conseillee). Claude Code developpe ${VAR} ; Claude Desktop non : y ecrire les chemins resolus. Aucun secret ici.",
+  "mcpServers": {
+    "mcp-search-net": {
+      "type": "stdio",
+      "command": "cmd.exe",
+      "args": ["/d", "/s", "/c", "${MCP_SEARCH_HOME}\\bin\\mcp-search-net.cmd"],
+      "env": {
+        "MCP_SEARCH_HOME": "${MCP_SEARCH_HOME}",
+        "MCP_CONFIG_PATH": "${MCP_SEARCH_HOME}\\config\\application.yml",
+        "MCP_CATALOG_PATH": "${MCP_SEARCH_HOME}\\data\\catalog.db"
+      }
+    }
+  }
+}
