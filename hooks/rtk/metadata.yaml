@@ -1,0 +1,25 @@
+kind: hook
+name: rtk
+displayName: RTK — sorties de commandes condensées
+description: >-
+  Hook PreToolUse sur Bash qui fait passer les commandes de Claude Code par RTK (Rust Token Killer)
+  pour condenser leur sortie avant qu'elle n'entre dans le contexte, avec la règle qui explique à
+  Claude comment lire ces sorties. À installer pour réduire le coût en jetons des commandes
+  bavardes (git, build, tests, docker).
+version: 1.0.0
+status: experimental
+category: productivity
+tags:
+  - tokens
+  - context
+  - bash
+  - pre-tool-use
+  - third-party
+compatibility:
+  - claude-code
+requires:
+  - rtk (Rust Token Killer) dans le PATH
+authors:
+  - Fabrice Turleque
+license: MIT
+homepage: https://github.com/rtk-ai/rtk

@@ -1,0 +1,26 @@
+kind: mcp-server
+name: nexus
+displayName: NEXUS Context Engine
+description: >-
+  Branche le serveur MCP de NEXUS, moteur local de contexte : recherche hybride dans le code et la
+  documentation, recherche de symboles et d'usages, et construction d'un contexte borné et
+  explicable, sur un projet ou plusieurs. À brancher quand Claude doit rassembler le bon contexte
+  sans dépasser un budget.
+version: 1.0.0
+status: experimental
+category: analysis
+tags:
+  - context
+  - code-search
+  - hybrid-search
+  - multi-project
+  - docker
+compatibility:
+  - claude-code
+  - claude-desktop
+requires:
+  - Docker (conteneur nexus-context-engine démarré)
+authors:
+  - Fabrice Turleque
+license: MIT
+homepage: https://github.com/FTurleque/nexus-context-engine

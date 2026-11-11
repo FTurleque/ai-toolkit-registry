@@ -1,0 +1,27 @@
+kind: mcp-server
+name: minos
+displayName: MINOS — Code Intelligence
+description: >-
+  Branche le serveur MCP de MINOS, moteur local d'intelligence de code : symboles, appelants,
+  implémentations, dépendances, architecture, impact d'un changement, tests liés et recherche
+  sémantique sur des dépôts indexés. À brancher quand Claude doit comprendre un code volumineux
+  sans tout relire.
+version: 1.0.0
+status: experimental
+category: analysis
+tags:
+  - code-intelligence
+  - symbols
+  - impact-analysis
+  - architecture
+  - semantic-search
+compatibility:
+  - claude-code
+  - claude-desktop
+requires:
+  - MINOS installé (setup Windows, runtime Java embarqué)
+  - variables d'environnement MINOS_INSTALL_DIR et MINOS_HOME
+authors:
+  - Fabrice Turleque
+license: MIT
+homepage: https://github.com/FTurleque/minos-code-intelligence

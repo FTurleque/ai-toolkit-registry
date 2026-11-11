@@ -1,0 +1,11 @@
+{
+  "_doc": "Extrait a fusionner dans la configuration MCP (portee utilisateur conseillee). Le serveur tourne dans le conteneur nexus-context-engine, qui doit etre demarre. Aucun chemin local, aucun secret.",
+  "mcpServers": {
+    "nexus": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["exec", "-i", "nexus-context-engine", "java", "-jar", "/opt/nexus/lib/nexus-mcp.jar"],
+      "env": {}
+    }
+  }
+}

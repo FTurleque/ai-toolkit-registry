@@ -12,11 +12,11 @@ Catalogue de tous les artefacts du depot, par type.
 | Plugins | 1 |
 | Sous-agents | 0 |
 | Commandes | 0 |
-| Hooks | 0 |
-| Instructions de projet | 0 |
-| Serveurs MCP | 0 |
+| Hooks | 1 |
+| Instructions de projet | 1 |
+| Serveurs MCP | 4 |
 | Styles de sortie | 0 |
-| **Total** | **15** |
+| **Total** | **21** |
 
 ## Skills
 
@@ -42,3 +42,24 @@ Catalogue de tous les artefacts du depot, par type.
 | Artefact | Description | Version | Statut | Surfaces |
 |----------|-------------|---------|--------|----------|
 | [`code-supervisor`](plugins/code-supervisor) | Supervision automatique du code produit par un agent, avec renvoi en correction sur probleme bloquant. | 1.3.0 | experimental | Code |
+
+## Hooks
+
+| Artefact | Description | Version | Statut | Surfaces |
+|----------|-------------|---------|--------|----------|
+| [`rtk`](hooks/rtk) | Hook PreToolUse sur Bash qui fait passer les commandes de Claude Code par RTK (Rust Token Killer) pour condenser leur sortie avant qu'elle n'entre dans le co... | 1.0.0 | experimental | Code |
+
+## Instructions de projet
+
+| Artefact | Description | Version | Statut | Surfaces |
+|----------|-------------|---------|--------|----------|
+| [`user-global-rules`](instructions/user-global-rules) | Règles à poser dans ~/.claude/rules/ pour qu'elles s'appliquent à tous les projets : langue des réponses, et interdiction de créer fichiers, dossiers ou work... | 1.0.0 | experimental | Code |
+
+## Serveurs MCP
+
+| Artefact | Description | Version | Statut | Surfaces |
+|----------|-------------|---------|--------|----------|
+| [`jetbrains-ide`](mcp/jetbrains-ide) | Branche le serveur MCP intégré aux IDE JetBrains (IntelliJ IDEA 2025.2 et plus) : inspections, recherche dans le projet ouvert, refactorisations, configurati... | 1.0.0 | brouillon | Code |
+| [`mcp-search-net`](mcp/mcp-search-net) | Branche le serveur local mcp-search-net : recherche Web (SearXNG), lecture de pages publiques protégée contre le SSRF et catalogue documentaire local, en lec... | 1.0.0 | experimental | Code, Desktop |
+| [`minos`](mcp/minos) | Branche le serveur MCP de MINOS, moteur local d'intelligence de code : symboles, appelants, implémentations, dépendances, architecture, impact d'un changemen... | 1.0.0 | experimental | Code, Desktop |
+| [`nexus`](mcp/nexus) | Branche le serveur MCP de NEXUS, moteur local de contexte : recherche hybride dans le code et la documentation, recherche de symboles et d'usages, et constru... | 1.0.0 | experimental | Code, Desktop |

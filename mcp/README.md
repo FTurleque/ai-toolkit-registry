@@ -15,6 +15,7 @@ mcp/<nom-du-serveur>/
 ├── metadata.yaml   métadonnées du registre (obligatoire)
 ├── README.md       ce que le serveur apporte, ses prérequis, son branchement (obligatoire)
 ├── .mcp.json       l'extrait de configuration à fusionner
+├── rules/          une règle qui dit à Claude quand utiliser le serveur (facultatif)
 └── examples/       des appels réels et ce qu'ils renvoient
 ```
 

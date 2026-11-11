@@ -9,6 +9,29 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Ajouté — outillage global du poste : quatre MCP, des règles personnelles, le hook RTK
+
+Repris de la configuration globale du mainteneur (`~/.claude`, `~/.claude.json`, Claude Desktop),
+sans chemin local ni secret : les emplacements passent par des variables d'environnement.
+
+- **`mcp/mcp-search-net` 1.0.0** : recherche Web, lecture de pages et catalogue documentaire en
+  lecture seule ; livré avec `rules/mcp-search-net.md`, la consigne d'usage jusque-là recopiée dans
+  le `CLAUDE.md` global. `claude-code` et `claude-desktop`.
+- **`mcp/minos` 1.0.0** et **`mcp/nexus` 1.0.0** : branchement des moteurs d'intelligence de code
+  et de contexte. `claude-code` et `claude-desktop`.
+- **`mcp/jetbrains-ide` 1.0.0** (`draft`) : serveur MCP intégré à IntelliJ IDEA 2025.2+, transport
+  HTTP stream ; connexion à revérifier IDE ouvert. `claude-code`.
+- **`instructions/user-global-rules` 1.0.0** : `rules/language.md` et `rules/files-outside-repo.md`,
+  à poser dans `~/.claude/rules/`.
+- **`hooks/rtk` 1.0.0** : hook `PreToolUse` sur Bash vers RTK (outil tiers) et sa règle
+  `rules/rtk.md` ; exemple tiré d'une exécution réelle.
+- **Règles** : `instructions/README.md` documente `.claude/rules/` et `~/.claude/rules/` (même
+  mécanisme qu'un `CLAUDE.md`, donc rangées dans `instructions/`, ARCH-001) ; un MCP ou un hook peut
+  livrer sa propre règle (`rules/`), ajouté aux formes attendues de `mcp/` et `hooks/`.
+- **`docs/install.md`** : installation des règles, développement des `${VAR}` (Claude Code oui,
+  Claude Desktop non), section « Outils tiers » (Archgate CLI facultatif pour les skills ADR ; le
+  plugin Archgate n'est requis par aucun artefact ; RTK).
+
 ### Modifié — `code-supervisor` 1.3.0 : CRITICAL fiables, coût de la revue par modèle réglable
 
 - **Hook documenté tel qu'il est déclaré** : forme shell (`command`), lancée par `sh`, Git Bash ou PowerShell ;

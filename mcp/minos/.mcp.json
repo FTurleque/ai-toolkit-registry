@@ -1,0 +1,13 @@
+{
+  "_doc": "Extrait a fusionner dans la configuration MCP (portee utilisateur conseillee). MINOS_INSTALL_DIR : dossier du programme ; MINOS_HOME : dossier de donnees. Claude Code developpe ${VAR} ; Claude Desktop non.",
+  "mcpServers": {
+    "minos": {
+      "type": "stdio",
+      "command": "${MINOS_INSTALL_DIR}\\app\\minos.exe",
+      "args": ["mcp"],
+      "env": {
+        "MINOS_HOME": "${MINOS_HOME}"
+      }
+    }
+  }
+}

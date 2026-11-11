@@ -1,0 +1,21 @@
+kind: instructions
+name: user-global-rules
+displayName: Règles personnelles transverses
+description: >-
+  Règles à poser dans ~/.claude/rules/ pour qu'elles s'appliquent à tous les projets : langue des
+  réponses, et interdiction de créer fichiers, dossiers ou worktrees hors du dépôt de travail. Une
+  règle par fichier, à prendre ou à laisser séparément.
+version: 1.0.0
+status: experimental
+category: development
+tags:
+  - rules
+  - user-scope
+  - language
+  - worktree
+  - workspace-hygiene
+compatibility:
+  - claude-code
+authors:
+  - Fabrice Turleque
+license: MIT
