@@ -154,6 +154,11 @@ le code d'origine), puis la correction de la règle, puis `--update` ; le diff d
 motif. Si le motif est légitime et courant, l'ajouter aussi à `precision/`. `precision/` est silencieux pour le
 superviseur, comme `corpus/`.
 
+**Accepter un faux positif qu'aucune règle ne peut distinguer** : quand le code n'est correct que par un
+raisonnement qu'une expression régulière ne voit pas (un diviseur borné par la condition qui garde la division),
+la règle ne s'affaiblit pas pour tous. Le projet supervisé déclare le constat dans `accepted_findings`, avec la
+raison ; les scénarios `accepted_*` de la suite `hook` tiennent ce mécanisme.
+
 ## Portabilité des références
 
 Les sorties sont normalisées avant comparaison pour être identiques d'une machine à l'autre : dossier de
