@@ -13,6 +13,7 @@ import tempfile
 import time
 import types
 
+import acceptance
 import engine
 import llm
 import report as report_mod
@@ -147,16 +148,19 @@ def run(project_dir: str, cfg, hints=None, base_ref=None, reviewed=None, event="
     files, candidates = engine.select_files(root, cfg, touched_hint=hints, base_ref=base_ref, reviewed=reviewed)
     if not files:
         return None
-    static = engine.analyze(root, files, cfg)
+    static, accepted = acceptance.split(engine.analyze(root, files, cfg), cfg.accepted)
     skipped = llm.skip_reason(files, cfg, event)
     llm_findings, verdict = ([], skipped) if skipped else llm.review(root, files, static, cfg)
-    findings = sort_findings(static + llm_findings)
+    llm_findings, accepted_by_llm = acceptance.split(llm_findings, cfg.accepted)
+    accepted += accepted_by_llm
+    findings = sort_findings(static + llm_findings
+                             + acceptance.stale(cfg.accepted, accepted, [sf.path for sf in files]))
     counts = engine.counts(findings)
     blockers = engine.blocking(findings, cfg)
     others = [f for f in findings if f not in blockers]
     return {
         "root": root, "files": files, "findings": findings, "counts": counts,
-        "blockers": blockers, "others": others, "verdict": verdict,
+        "blockers": blockers, "others": others, "verdict": verdict, "accepted": accepted,
     }
 
 
@@ -303,7 +307,7 @@ def _write_report(logs: str, result: dict, blocked: bool, session_id: str, round
     report_file = os.path.join(logs, "rapport-%s.md" % time.strftime("%Y%m%d-%H%M%S"))
     try:
         text = report_mod.full_report(result["findings"], result["files"], result["counts"],
-                                      result["verdict"], blocked, session_id, round_no)
+                                      result["verdict"], blocked, session_id, round_no, result["accepted"])
         with open(report_file, "w", encoding="utf-8") as fh:
             fh.write(text)
     except Exception as exc:  # frontiere du hook : un rapport manque ne doit pas annuler le verdict
@@ -320,16 +324,19 @@ def _encode_hook_output(out: dict) -> str:
 def _hook_output(payload: dict, result: dict, blocked: bool, exhausted: bool,
                  seen_rounds: int, report_file: str, limit: int) -> dict:
     blockers = result["blockers"]
-    summary = report_mod.user_summary(result["counts"], blocked, len(result["files"]), result["verdict"])
+    accepted_count = len(result["accepted"])
+    summary = report_mod.user_summary(result["counts"], blocked, len(result["files"]), result["verdict"],
+                                      accepted_count)
     if blocked:
         return {
             "decision": "block",
-            "reason": report_mod.block_message(blockers, result["others"], result["verdict"], report_file, limit),
+            "reason": report_mod.block_message(blockers, result["others"], result["verdict"], report_file, limit,
+                                               accepted_count),
             "systemMessage": summary,
         }
     if not result["findings"]:
         return {"systemMessage": summary}
-    detail = report_mod.warn_message(result["findings"], result["verdict"], report_file, limit)
+    detail = report_mod.warn_message(result["findings"], result["verdict"], report_file, limit, accepted_count)
     if blockers and exhausted:
         passes = max(seen_rounds, 1)
         detail = ("Des problemes bloquants subsistent apres %d passe(s) de correction : "
@@ -391,12 +398,15 @@ def hook_main() -> int:
 def _review_explicit(argv, explicit, root: str, cfg):
     rels = [os.path.relpath(os.path.abspath(p), root).replace("\\", "/") for p in explicit]
     files = load(root, rels, changed_lines=git_changed_lines(root, rels))
-    findings = engine.analyze(root, files, cfg)
+    findings, accepted = acceptance.split(engine.analyze(root, files, cfg), cfg.accepted)
     verdict = ""
     if "--llm" in argv:
         extra, verdict = llm.review(root, files, findings, cfg)
-        findings = sort_findings(findings + extra)
-    return files, findings, verdict
+        extra, accepted_by_llm = acceptance.split(extra, cfg.accepted)
+        accepted += accepted_by_llm
+        findings = findings + extra
+    findings = sort_findings(findings + acceptance.stale(cfg.accepted, accepted, [sf.path for sf in files]))
+    return files, findings, verdict, accepted
 
 
 def cli_main(argv) -> int:
@@ -406,16 +416,17 @@ def cli_main(argv) -> int:
     cfg = load_config(root, user_dir, HERE)
     explicit = [a for a in argv if not a.startswith("-")]
     if explicit:
-        files, findings, verdict = _review_explicit(argv, explicit, root, cfg)
+        files, findings, verdict, accepted = _review_explicit(argv, explicit, root, cfg)
     else:
         result = run(root, cfg)
         if result is None:
             print("Aucun fichier modifie a relire.")
             return 0
-        files, findings, verdict = result["files"], result["findings"], result["verdict"]
+        files, findings, verdict, accepted = (result["files"], result["findings"], result["verdict"],
+                                              result["accepted"])
     counts = engine.counts(findings)
     blockers = engine.blocking(findings, cfg)
-    print(report_mod.full_report(findings, files, counts, verdict, bool(blockers), "manuel", 1))
+    print(report_mod.full_report(findings, files, counts, verdict, bool(blockers), "manuel", 1, accepted))
     return 1 if blockers else 0
 
 

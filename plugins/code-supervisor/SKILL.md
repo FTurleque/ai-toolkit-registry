@@ -3,7 +3,7 @@ kind: plugin
 name: code-supervisor
 displayName: Code Supervisor
 description: Supervision automatique du code produit par un agent, avec renvoi en correction sur probleme bloquant. A utiliser pour relire un diff ou un ensemble de fichiers et rendre un verdict sur la securite, les bugs introduits, la duplication, la complexite, le nommage et les conventions du projet.
-version: 1.3.0
+version: 1.4.0
 status: experimental
 category: development
 tags:
@@ -81,6 +81,8 @@ Determiner le perimetre, puis juger uniquement ce qui a change.
 - Ne pas juger du code hors du perimetre, sauf si le diff le casse.
 - Un faux positif coute plus cher qu'un oubli : il envoie l'agent modifier du code correct.
   En cas de doute, classer plus bas plutot que bloquer.
+- Un faux positif que le projet a accepte (`accepted_findings`, avec sa raison) n'est plus remonte.
+  L'agent ne s'en ajoute pas lui-meme : une acceptation est une decision du mainteneur.
 - Ne lancer aucun build ni aucune CI. Les outils ne sont appeles que s'ils sont declares dans
   `external_tools`, et cette liste est vide par defaut. Seule la configuration de l'utilisateur ou
   celle du moteur est honoree : une configuration de projet ne peut pas lancer de programme.

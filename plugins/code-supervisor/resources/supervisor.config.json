@@ -48,6 +48,8 @@
   ],
 
   "quiet_paths": [],
+  "_accepted_findings_doc": "Constats precis ecartes par le projet, chacun avec sa raison : {\"rule\": \"BUG.DIV_ZERO\", \"path\": \"src/Calcul.java\", \"symbol\": \"Calcul.ratio\", \"reason\": \"le diviseur est borne par la condition qui garde la division\"}. path : chemin relatif a la racine Git ou motif ; symbol facultatif ; reason obligatoire. Une entree qui n'ecarte plus rien dans un fichier relu est signalee (SUP.STALE_ACCEPTANCE). Admis dans une configuration de projet.",
+  "accepted_findings": [],
   "log_dir": "",
   "log_subdir": "docs/rapport-supervisor"
 }

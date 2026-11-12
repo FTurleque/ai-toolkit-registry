@@ -9,6 +9,10 @@ et ce projet respecte le [Versionnement Sémantique](https://semver.org/lang/fr/
 
 ## [Non publié]
 
+### Ajouté — `code-supervisor` 1.4.0 : accepter un faux positif, avec sa raison
+
+- **`accepted_findings`** : une configuration de projet écarte un constat précis (règle, chemin ou motif, symbole facultatif) en écrivant pourquoi il est faux. Une entrée sans raison n'écarte rien et est signalée sur stderr. Le message du hook et le rapport disent combien de constats sont acceptés, le rapport avec leur raison. Une entrée qui n'écarte plus rien dans un fichier relu devient un constat MINOR `SUP.STALE_ACCEPTANCE` ; une entrée pour un fichier non relu n'est pas jugée. Le seul autre levier, `exclude`, retire un fichier entier de la relecture.
+
 ### Ajouté — outillage global du poste : quatre MCP, des règles personnelles, le hook RTK
 
 Repris de la configuration globale du mainteneur (`~/.claude`, `~/.claude.json`, Claude Desktop),

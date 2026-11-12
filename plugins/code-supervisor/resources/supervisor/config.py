@@ -6,6 +6,8 @@ import json
 import os
 import sys
 
+import acceptance
+
 # Cles de premier niveau qu'une configuration de projet ne peut pas fixer (voir _drop_untrusted_keys).
 PROJECT_FORBIDDEN_KEYS = ("external_tools", "log_dir")
 # Sous-dossier des rapports, relatif a la racine Git du projet (cle `log_subdir`).
@@ -73,6 +75,8 @@ DEFAULTS = {
     "log_dir": "",          # vide = <racine Git>/<log_subdir>
     "log_subdir": DEFAULT_LOG_SUBDIR,   # relatif a la racine Git, admis dans une configuration de projet
     "quiet_paths": [],      # chemins ou le superviseur ne dit rien
+    # Constats precis qu'un projet ecarte en ecrivant pourquoi ils sont faux (voir acceptance.py).
+    "accepted_findings": [],
 }
 
 
@@ -84,6 +88,7 @@ class Config:
         self.log_subdir = normalize_log_subdir(data.get("log_subdir")) or DEFAULT_LOG_SUBDIR
         # Les rapports ne sont jamais relus, ou qu'ils soient ranges : le motif suit `log_subdir`.
         self._exclude = list(data["exclude"]) + ["**/%s/**" % self.log_subdir]
+        self.accepted, self.acceptance_problems = acceptance.parse(data.get("accepted_findings"))
 
     def __getitem__(self, key):
         return self.data[key]
@@ -187,4 +192,7 @@ def load_config(project_dir: str, user_dir: str, script_dir: str = "") -> Config
                  os.path.join(project_dir, ".supervisor.json")):
         if os.path.isfile(path):
             merged = _merge_project_config(merged, path, user_dir)
-    return Config(merged)
+    config = Config(merged)
+    for problem in config.acceptance_problems:
+        sys.stderr.write("superviseur : %s\n" % problem)
+    return config
