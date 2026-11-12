@@ -263,6 +263,54 @@ def _nested_scenarios(sandbox: Sandbox, results: dict) -> None:
     results["nested_state_dirs"] = _state_dirs(sandbox)
 
 
+def _accepting_repo(sandbox: Sandbox, name: str, files: dict, entries) -> str:
+    repo = sandbox.make_repo(name, files)
+    os.makedirs(os.path.join(repo, ".claude"))
+    Sandbox.write(repo, os.path.join(".claude", "supervisor.config.json"), json.dumps({"accepted_findings": entries}))
+    return repo
+
+
+def _report_section(repo: str, title: str) -> str:
+    """La section `title` du rapport ecrit dans le depot, jusqu'a la section suivante."""
+    folder = os.path.join(repo, "docs", "rapport-supervisor")
+    name = next(entry for entry in sorted(os.listdir(folder)) if entry.startswith("rapport-"))
+    with open(os.path.join(folder, name), encoding="utf-8") as fh:
+        text = fh.read()
+    start = text.find(title)
+    return text[start:] if start >= 0 else ""
+
+
+def _acceptance_scenarios(sandbox: Sandbox, results: dict) -> None:
+    """`accepted_findings` : une entree ecarte le constat qu'elle nomme et rien d'autre, une entree sans
+    raison n'ecarte rien, une entree qui n'ecarte rien dans un fichier relu est signalee, une entree pour
+    un fichier non relu n'est pas jugee."""
+    reason = "le diviseur est borne par la condition qui garde la division"
+    swallowed = {"rule": "BUG.CATCH_SWALLOWED", "path": "a.py", "reason": reason}
+    accepted = _accepting_repo(sandbox, "acc_ok", {"a.py": BAD}, [swallowed])
+    results["accepted_critical"] = sandbox.run(accepted, {"cwd": accepted, "session_id": "a1"})
+    results["accepted_critical_report"] = sandbox.normalize(
+        _report_section(accepted, "## Constats acceptes"))
+
+    other_symbol = _accepting_repo(sandbox, "acc_symbol", {"a.py": BAD}, [dict(swallowed, symbol="g")])
+    results["accepted_other_symbol"] = sandbox.run(other_symbol, {"cwd": other_symbol, "session_id": "a2"})
+
+    by_glob = _accepting_repo(sandbox, "acc_glob", {"a.py": BAD}, [dict(swallowed, path="*.py")])
+    results["accepted_by_glob"] = sandbox.run(by_glob, {"cwd": by_glob, "session_id": "a3"})
+
+    no_reason = _accepting_repo(sandbox, "acc_reason", {"a.py": BAD},
+                                [dict(swallowed, reason="  "), {"path": "a.py", "reason": reason}, "a.py"])
+    results["accepted_without_reason"] = sandbox.run(no_reason, {"cwd": no_reason, "session_id": "a4"})
+
+    stale = _accepting_repo(sandbox, "acc_stale", {"b.py": CLEAN}, [dict(swallowed, path="b.py")])
+    results["accepted_stale"] = sandbox.run(stale, {"cwd": stale, "session_id": "a5"})
+
+    unread = _accepting_repo(sandbox, "acc_unread", {"b.py": CLEAN}, [dict(swallowed, path="c.py")])
+    results["accepted_unread_file"] = sandbox.run(unread, {"cwd": unread, "session_id": "a6"})
+
+    not_a_list = _accepting_repo(sandbox, "acc_not_list", {"a.py": BAD}, swallowed)
+    results["accepted_not_a_list"] = sandbox.run(not_a_list, {"cwd": not_a_list, "session_id": "a7"})
+
+
 def _cli_scenarios(sandbox: Sandbox, results: dict, bad: str, clean: str) -> None:
     """Mode manuel `--check`, avec ou sans chemin, et `--self-test`."""
     results["cli_check_bad"] = sandbox.run(bad, args=["--check", "a.py"], raw="")
@@ -339,6 +387,7 @@ def run(script: str) -> dict:
         _nested_scenarios(sandbox, results)
         _cli_scenarios(sandbox, results, bad, clean)
         _llm_gate_scenarios(sandbox, results)     # apres l'inventaire des dossiers d'etat de _nested_scenarios
+        _acceptance_scenarios(sandbox, results)
         results["states"] = _states(bad)
     finally:
         sandbox.close()

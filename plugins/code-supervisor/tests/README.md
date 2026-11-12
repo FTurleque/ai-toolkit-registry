@@ -43,9 +43,9 @@ de `?`, message d'erreur contenant un mot SQL, boucle qui lit une liste remplie 
 qui relance, catch vide justifié, `contains("pwd=")`, chaîne de connexion factice dans un test. Avec
 `--script`, c'est le moteur désigné qui est évalué.
 
-**`hook`** (46 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
+**`hook`** (54 entrées) : tours de blocage puis libération de l'empreinte anti-boucle, autre session,
 événement `SubagentStop`, `stop_hook_active`, `SUPERVISOR_ACTIVE`, agent superviseur, entrée invalide,
-transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, session dont le dossier courant est un sous-dossier du dépôt (rapports, état et configuration de projet à la racine Git, état retrouvé à la passe suivante), `log_subdir` du projet et ses valeurs refusées (`..`, chemin absolu, `.git`), chemin accentué, `--check`
+transcript avec lignes corrompues, périmètre (fichier commité et inchangé, commit depuis le début de session, passes successives), revue par modèle en échec, état corrompu, dossier de journal imposé, session dont le dossier courant est un sous-dossier du dépôt (rapports, état et configuration de projet à la racine Git, état retrouvé à la passe suivante), `log_subdir` du projet et ses valeurs refusées (`..`, chemin absolu, `.git`), `accepted_findings` (constat écarté par règle et chemin ou motif, symbole différent sans effet, entrée sans raison ou mal formée refusée, entrée périmée signalée, fichier non relu non jugé, section du rapport), chemin accentué, `--check`
 avec ou sans chemin, `--self-test`, et l'état anti-boucle persisté. La revue par modèle est coupée, sauf dans
 deux familles qui la confient à un faux CLI : revue en échec (session expirée), et `llm_gate_*`, où un faux
 relecteur note chaque appel. `llm_gate_*` vérifie que `llm.min_changed_lines`, `llm.code_files_only` et

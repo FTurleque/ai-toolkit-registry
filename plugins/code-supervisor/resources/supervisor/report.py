@@ -38,7 +38,16 @@ def _render(findings: List[Finding], limit: int) -> str:
     return "\n".join(lines)
 
 
-def block_message(blockers: List[Finding], others: List[Finding], verdict: str, report_path: str, limit: int) -> str:
+def accepted_line(accepted_count: int) -> List[str]:
+    """Une ligne qui dit combien de constats la configuration du projet a acceptes, ou rien."""
+    if not accepted_count:
+        return []
+    return ["", "%d constat(s) accepte(s) par accepted_findings, avec leur raison dans le rapport complet."
+            % accepted_count]
+
+
+def block_message(blockers: List[Finding], others: List[Finding], verdict: str, report_path: str, limit: int,
+                  accepted_count: int = 0) -> str:
     out = [
         "SUPERVISEUR DE CODE — correction requise avant de rendre la main.",
         "",
@@ -50,6 +59,7 @@ def block_message(blockers: List[Finding], others: List[Finding], verdict: str, 
     if others:
         out += ["", "## Signale sans blocage (a traiter si c'est dans le perimetre de ta tache)",
                 _render(others, max(6, limit // 2))]
+    out += accepted_line(accepted_count)
     if verdict:
         out += ["", "Synthese du relecteur : %s" % verdict]
     out += [
@@ -65,7 +75,8 @@ def block_message(blockers: List[Finding], others: List[Finding], verdict: str, 
     return "\n".join(out)
 
 
-def warn_message(findings: List[Finding], verdict: str, report_path: str, limit: int) -> str:
+def warn_message(findings: List[Finding], verdict: str, report_path: str, limit: int,
+                 accepted_count: int = 0) -> str:
     headline = ("SUPERVISEUR DE CODE — analyse statique seule, aucun probleme bloquant. "
                 if static_only(verdict) else "SUPERVISEUR DE CODE — aucun probleme bloquant. ")
     out = [
@@ -73,18 +84,21 @@ def warn_message(findings: List[Finding], verdict: str, report_path: str, limit:
         "",
         _render(findings, limit),
     ]
+    out += accepted_line(accepted_count)
     if verdict:
         out += ["", "Synthese du relecteur : %s" % verdict]
     out += ["", "Rapport complet : %s" % report_path]
     return "\n".join(out)
 
 
-def user_summary(counts: dict, blocked: bool, nb_files: int, verdict: str = "") -> str:
+def user_summary(counts: dict, blocked: bool, nb_files: int, verdict: str = "", accepted_count: int = 0) -> str:
     parts = []
     for sev in (CRITICAL, MAJOR, MINOR):
         if counts.get(sev):
             parts.append("%d %s" % (counts[sev], sev.lower()))
     detail = ", ".join(parts) if parts else "rien a signaler"
+    if accepted_count:
+        detail += " (%d accepte(s))" % accepted_count
     state = "agent renvoye en correction" if blocked else "pas de blocage"
     if static_only(verdict):
         state += ", analyse statique seule : %s" % verdict[:240]
@@ -92,7 +106,7 @@ def user_summary(counts: dict, blocked: bool, nb_files: int, verdict: str = "") 
 
 
 def full_report(findings: List[Finding], files, counts: dict, verdict: str,
-                blocked: bool, session_id: str, round_no: int) -> str:
+                blocked: bool, session_id: str, round_no: int, accepted=()) -> str:
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = [
         "# Rapport du superviseur de code",
@@ -119,4 +133,10 @@ def full_report(findings: List[Finding], files, counts: dict, verdict: str,
         lines += ["### %s (%d)" % (CATEGORY_LABEL.get(cat, cat), len(items)), "", _render(items, 200), ""]
     if not findings:
         lines.append("Aucun constat.")
+    if accepted:
+        lines += ["", "## Constats acceptes par accepted_findings (%d)" % len(accepted), ""]
+        for finding, entry in sorted(accepted, key=lambda pair: (pair[0].file, pair[0].line, pair[0].rule)):
+            symbol = " (`%s`)" % finding.symbol if finding.symbol else ""
+            lines.append("- **%s / %s** — %s%s" % (finding.severity, finding.rule, finding.location(), symbol))
+            lines.append("  - Raison : %s" % entry.reason)
     return "\n".join(lines)
